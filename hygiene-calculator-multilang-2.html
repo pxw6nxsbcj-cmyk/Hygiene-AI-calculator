@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HygieneCalc AFH</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F4F1EC;--bg2:#EAE6DF;--surface:#FFFFFF;
+  --ink:#1A1916;--ink2:#55524C;--ink3:#9A9690;
+  --border:rgba(26,25,22,.10);--bdstrong:rgba(26,25,22,.18);
+  --tp:#1A3A6B;--tp-bg:#EBF0F9;
+  --so:#0F6E56;--so-bg:#E1F5EE;
+  --tw:#7C3D0F;--tw-bg:#F5EDE3;
+  --ok:#166534;--ok-bg:#F0FDF4;
+  --warn:#B45309;--warn-bg:#FFFBEB;
+  --danger:#991B1B;--danger-bg:#FEF2F2;
+  --mono:'DM Mono',monospace;--sans:'Syne',sans-serif;
+  --r:4px;--rl:8px;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh;line-height:1.6}
+header{border-bottom:1px solid var(--bdstrong);background:var(--bg);padding:0 2rem;position:sticky;top:0;z-index:200}
+.hdr{max-width:1140px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:56px;gap:1rem}
+.logo{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);text-decoration:none}
+.logo-mark{width:30px;height:30px;background:var(--ink);border-radius:50%;display:grid;place-items:center}
+.logo-mark svg{width:14px;height:14px}
+.hdr-right{display:flex;align-items:center;gap:1rem}
+.hdr-badge{font-family:var(--mono);font-size:11px;color:var(--ink3)}
+.lang-switcher{display:flex;gap:3px;background:var(--bg2);border:1px solid var(--bdstrong);border-radius:var(--r);padding:3px}
+.lang-btn{padding:4px 10px;font-family:var(--mono);font-size:11px;font-weight:500;border:none;border-radius:2px;background:transparent;color:var(--ink3);cursor:pointer;transition:all .15s;letter-spacing:.04em}
+.lang-btn.active{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.lang-btn:hover:not(.active){color:var(--ink)}
+.tab-nav{display:flex;gap:2px;background:var(--bg2);border-bottom:1px solid var(--bdstrong);padding:0 2rem}
+.tab-nav-inner{max-width:1140px;margin:0 auto;display:flex;gap:0;width:100%}
+.tab-btn{display:flex;align-items:center;gap:8px;padding:0 20px;height:44px;font-family:var(--sans);font-size:13px;font-weight:500;border:none;background:transparent;cursor:pointer;color:var(--ink3);border-bottom:2px solid transparent;transition:color .15s,border-color .15s;white-space:nowrap}
+.tab-btn .tab-icon{width:16px;height:16px;border-radius:50%;flex-shrink:0;display:grid;place-items:center}
+.tab-btn .tab-icon svg{width:8px;height:8px;fill:white}
+.tab-btn:hover{color:var(--ink)}
+.tab-btn.active{color:var(--ink)}
+.tab-btn[data-tab="tp"].active{border-color:var(--tp)}
+.tab-btn[data-tab="so"].active{border-color:var(--so)}
+.tab-btn[data-tab="tw"].active{border-color:var(--tw)}
+.tab-btn[data-tab="tp"] .tab-icon{background:var(--tp)}
+.tab-btn[data-tab="so"] .tab-icon{background:var(--so)}
+.tab-btn[data-tab="tw"] .tab-icon{background:var(--tw)}
+.module{display:none}.module.active{display:block}
+.hero{max-width:1140px;margin:0 auto;padding:3.5rem 2rem 3rem;display:grid;grid-template-columns:1fr 1fr;gap:3.5rem;align-items:center}
+.hero-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin-bottom:.75rem;display:flex;align-items:center;gap:8px}
+.hero-eyebrow::before{content:'';width:20px;height:1px;background:currentColor}
+h1{font-size:clamp(2rem,3.5vw,2.9rem);font-weight:800;line-height:1.08;letter-spacing:-.02em;margin-bottom:1.25rem}
+h1 em{font-style:normal}
+.hero-desc{font-size:.95rem;color:var(--ink2);line-height:1.75;margin-bottom:1.75rem;max-width:400px}
+.hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--bdstrong);border:1px solid var(--bdstrong);border-radius:var(--rl);overflow:hidden}
+.hero-stat{background:var(--surface);padding:1.1rem 1.4rem}
+.stat-num{font-family:var(--mono);font-size:1.6rem;font-weight:500;line-height:1;margin-bottom:3px}
+.stat-lbl{font-size:11px;color:var(--ink3);letter-spacing:.04em}
+.cta-btn{display:inline-flex;align-items:center;gap:8px;color:white;font-family:var(--sans);font-size:13px;font-weight:500;letter-spacing:.04em;padding:11px 20px;border-radius:var(--r);text-decoration:none;border:none;cursor:pointer;transition:filter .15s,transform .1s}
+.cta-btn:hover{filter:brightness(.88)}.cta-btn:active{transform:scale(.98)}
+.cta-btn svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2}
+#mod-tp h1 em,#mod-tp .stat-num,#mod-tp .result-value{color:var(--tp)}
+#mod-tp .cta-btn{background:var(--tp)}
+#mod-tp .hero-eyebrow{color:var(--tp)}
+#mod-so h1 em,#mod-so .stat-num,#mod-so .result-value{color:var(--so)}
+#mod-so .cta-btn{background:var(--so)}
+#mod-so .hero-eyebrow{color:var(--so)}
+#mod-tw h1 em,#mod-tw .stat-num,#mod-tw .result-value{color:var(--tw)}
+#mod-tw .cta-btn{background:var(--tw)}
+#mod-tw .hero-eyebrow{color:var(--tw)}
+hr.div{border:none;border-top:1px solid var(--border)}
+.calc-sec{max-width:1140px;margin:0 auto;padding:3rem 2rem 4rem}
+.sec-hdr{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-bottom:2rem}
+.sec-title{font-size:1.35rem;font-weight:700;letter-spacing:-.01em}
+.sec-sub{font-family:var(--mono);font-size:11px;color:var(--ink3)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--bdstrong);border:1px solid var(--bdstrong);border-radius:var(--rl);overflow:hidden;margin-bottom:1.5rem}
+.form-panel{background:var(--surface);padding:1.6rem 1.8rem}
+.panel-lbl{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin-bottom:1.1rem;display:flex;align-items:center;gap:8px}
+.panel-lbl::after{content:'';flex:1;height:1px;background:var(--border)}
+.fg{margin-bottom:.9rem}.fg:last-child{margin-bottom:0}
+.fl{display:block;font-size:12px;color:var(--ink2);margin-bottom:4px}
+input[type=number],select{width:100%;height:37px;background:var(--bg);border:1px solid var(--bdstrong);border-radius:var(--r);padding:0 10px;font-family:var(--mono);font-size:13px;color:var(--ink);outline:none;transition:border-color .15s,box-shadow .15s;-moz-appearance:textfield}
+input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+input:focus,select:focus{border-color:var(--ink);box-shadow:0 0 0 3px rgba(26,25,22,.08)}
+select{cursor:pointer}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.ptog{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;background:var(--bg2);border:1px solid var(--bdstrong);border-radius:var(--r);padding:3px;margin-bottom:.9rem}
+.pbtn{padding:5px 3px;font-family:var(--sans);font-size:11px;font-weight:500;text-align:center;border:none;border-radius:2px;background:transparent;color:var(--ink3);cursor:pointer;transition:all .15s}
+.pbtn.active{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.results-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--bdstrong);border-radius:var(--r);overflow:hidden;margin-bottom:1.25rem}
+.rc{background:var(--surface);padding:1.1rem 1.4rem}
+.result-label{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:5px}
+.result-value{font-family:var(--mono);font-size:1.8rem;font-weight:500;line-height:1;margin-bottom:2px}
+.result-unit{font-size:11px;color:var(--ink3)}
+.sw{margin-bottom:1.25rem}
+.sm{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--ink3);margin-bottom:5px}
+.st{height:3px;background:var(--bdstrong);border-radius:2px;overflow:hidden}
+.sf{height:100%;border-radius:2px;transition:width .4s cubic-bezier(.4,0,.2,1),background .4s}
+.verdict{border-radius:var(--r);padding:9px 14px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;margin-bottom:1.25rem}
+.verdict::before{content:'';width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.v-ok{background:var(--ok-bg);color:var(--ok)}.v-ok::before{background:var(--ok)}
+.v-warn{background:var(--warn-bg);color:var(--warn)}.v-warn::before{background:var(--warn)}
+.v-danger{background:var(--danger-bg);color:var(--danger)}.v-danger::before{background:var(--danger)}
+.dtw{background:var(--surface);border:1px solid var(--bdstrong);border-radius:var(--rl);overflow:hidden}
+.dth{padding:.85rem 1.4rem;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3)}
+table.dt{width:100%;border-collapse:collapse}
+table.dt td{padding:8px 1.4rem;font-size:13px;border-bottom:1px solid var(--border)}
+table.dt tr:last-child td{border-bottom:none}
+table.dt td:first-child{color:var(--ink2)}
+table.dt td:last-child{text-align:right;font-family:var(--mono);font-weight:500}
+table.dt tr:hover td{background:var(--bg2)}
+.rfw{background:var(--surface);border:1px solid var(--bdstrong);border-radius:var(--rl);overflow:hidden;margin-bottom:1.5rem}
+.rfh{padding:.85rem 1.4rem;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3)}
+table.rft{width:100%;border-collapse:collapse}
+table.rft th{padding:7px 1.4rem;font-size:11px;font-weight:500;color:var(--ink3);text-align:left;border-bottom:1px solid var(--border);font-family:var(--mono)}
+table.rft td{padding:8px 1.4rem;font-size:13px;border-bottom:1px solid var(--border);color:var(--ink2)}
+table.rft tr:last-child td{border-bottom:none}
+table.rft td:first-child{color:var(--ink);font-weight:500}
+table.rft tr:hover td{background:var(--bg2)}
+.badge{display:inline-block;font-family:var(--mono);font-size:10px;padding:2px 6px;border-radius:3px}
+.b-ok{background:var(--ok-bg);color:var(--ok)}.b-warn{background:var(--warn-bg);color:var(--warn)}.b-info{background:var(--tp-bg);color:var(--tp)}
+.method{background:var(--surface);border-top:1px solid var(--border);padding:3rem 2rem}
+.method-inner{max-width:1140px;margin:0 auto}
+.mey{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:.6rem}
+.mt{font-size:1.3rem;font-weight:700;letter-spacing:-.01em;margin-bottom:1.75rem}
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden}
+.mc{background:var(--surface);padding:1.4rem}
+.mc-n{font-family:var(--mono);font-size:11px;color:var(--ink3);margin-bottom:.4rem}
+.mc-t{font-size:.9rem;font-weight:700;margin-bottom:.4rem}
+.mc-d{font-size:13px;color:var(--ink2);line-height:1.6}
+footer{border-top:1px solid var(--border);padding:1.25rem 2rem;font-family:var(--mono);font-size:11px;color:var(--ink3)}
+.fi{max-width:1140px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+.tab-btn[data-tab="cmp"].active{border-color:#4B3F6B}
+.tab-btn[data-tab="cmp"] .tab-icon{background:#4B3F6B}
+#mod-cmp h1 em,#mod-cmp .result-value{color:#4B3F6B}
+#mod-cmp .cta-btn{background:#4B3F6B}
+#mod-cmp .hero-eyebrow{color:#4B3F6B}
+
+/* COMPARISON MODULE */
+.cmp-sec{max-width:1140px;margin:0 auto;padding:3rem 2rem 4rem}
+
+
+.cmp-inputs{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:2rem}
+.cmp-slot{background:var(--surface);border:1px solid var(--bdstrong);border-radius:var(--rl);padding:1.4rem;display:flex;flex-direction:column;gap:.6rem;transition:border-color .2s,background .2s}
+.cmp-slot.drag-over{border-color:#4B3F6B;background:#F3F0FA}
+.cmp-slot-header{display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+.cmp-slot-num{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#4B3F6B;font-weight:500}
+.cmp-slot-clear{background:none;border:none;cursor:pointer;color:var(--ink3);font-family:var(--mono);font-size:11px;padding:2px 6px;border-radius:3px;transition:color .15s,background .15s}
+.cmp-slot-clear:hover{color:var(--danger);background:var(--danger-bg)}
+
+/* URL row */
+.cmp-url-row{display:flex;gap:6px;align-items:center}
+.cmp-url-icon{width:28px;height:28px;background:var(--bg2);border:1px solid var(--bdstrong);border-radius:var(--r);display:grid;place-items:center;flex-shrink:0}
+.cmp-url-icon svg{width:12px;height:12px;fill:none;stroke:var(--ink3);stroke-width:1.8}
+.cmp-url-input{flex:1;height:30px;padding:0 8px;font-family:var(--mono);font-size:11px;border:1px solid var(--bdstrong);border-radius:var(--r);background:var(--bg);color:var(--ink);outline:none;transition:border-color .15s,box-shadow .15s}
+.cmp-url-input:focus{border-color:#4B3F6B;box-shadow:0 0 0 3px rgba(75,63,107,.10)}
+.cmp-url-input::placeholder{color:var(--ink3)}
+
+.cmp-divider{font-family:var(--mono);font-size:10px;color:var(--ink3);letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:.5rem}
+.cmp-divider::before,.cmp-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.cmp-slot-name{width:100%;padding:5px 8px;font-family:var(--sans);font-size:12px;font-weight:500;border:1px solid var(--bdstrong);border-radius:var(--r);background:var(--bg);color:var(--ink);outline:none;transition:border-color .15s}
+.cmp-slot-name:focus{border-color:#4B3F6B;box-shadow:0 0 0 3px rgba(75,63,107,.10)}
+.cmp-slot-drop{flex:1;width:100%;resize:none;font-family:var(--mono);font-size:11px;line-height:1.6;padding:10px;border:1px solid var(--border);border-radius:var(--r);background:var(--bg);color:var(--ink);outline:none;transition:border-color .15s,box-shadow .15s;min-height:140px}
+.cmp-slot-drop:focus{border-color:#4B3F6B;box-shadow:0 0 0 3px rgba(75,63,107,.10)}
+.cmp-slot-drop::placeholder{color:var(--ink3)}
+.cmp-drop-hint{font-family:var(--mono);font-size:10px;color:var(--ink3);letter-spacing:.04em;text-align:center}
+
+.cmp-run-row{display:flex;align-items:center;gap:1rem;margin-bottom:2.5rem;flex-wrap:wrap}
+.cmp-run-btn{display:inline-flex;align-items:center;gap:8px;background:#4B3F6B;color:white;font-family:var(--sans);font-size:13px;font-weight:500;letter-spacing:.04em;padding:12px 24px;border-radius:var(--r);border:none;cursor:pointer;transition:filter .15s,transform .1s}
+.cmp-run-btn:hover{filter:brightness(.88)}.cmp-run-btn:active{transform:scale(.98)}
+.cmp-run-btn:disabled{opacity:.5;cursor:not-allowed;filter:none}
+.cmp-run-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2}
+.cmp-status{font-family:var(--mono);font-size:11px;color:var(--ink3)}
+.cmp-err{color:var(--danger)}
+.cmp-spinner{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* RESULT AREA */
+.cmp-result{display:none}
+.cmp-result.visible{display:block}
+.cmp-summaries{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:2rem}
+.cmp-summary-card{background:var(--surface);border:1px solid var(--bdstrong);border-radius:var(--rl);padding:1.4rem}
+.cmp-card-num{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#4B3F6B;margin-bottom:.4rem}
+.cmp-card-name{font-size:.95rem;font-weight:700;margin-bottom:.3rem;letter-spacing:-.01em}
+.cmp-card-url{font-family:var(--mono);font-size:10px;color:var(--ink3);margin-bottom:.6rem;word-break:break-all}
+.cmp-card-text{font-size:13px;color:var(--ink2);line-height:1.65}
+.cmp-table-wrap{background:var(--surface);border:1px solid var(--bdstrong);border-radius:var(--rl);overflow:hidden;margin-bottom:1.5rem}
+.cmp-table-hdr{padding:.85rem 1.4rem;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3)}
+table.cmp-tbl{width:100%;border-collapse:collapse}
+table.cmp-tbl th{padding:8px 1.2rem;font-size:11px;font-weight:500;color:var(--ink3);text-align:left;border-bottom:1px solid var(--bdstrong);font-family:var(--mono);background:var(--bg2)}
+table.cmp-tbl td{padding:9px 1.2rem;font-size:13px;border-bottom:1px solid var(--border);vertical-align:top}
+table.cmp-tbl tr:last-child td{border-bottom:none}
+table.cmp-tbl td:first-child{color:var(--ink2);font-size:12px;width:22%}
+table.cmp-tbl td.best{background:#F0FDF4;color:#166534;font-weight:600}
+table.cmp-tbl tr:hover td{background:var(--bg2)}
+table.cmp-tbl tr:hover td.best{background:#dcfce7}
+.cmp-note{font-family:var(--mono);font-size:11px;color:var(--ink3);margin-top:1rem;padding:.75rem 1rem;border:1px solid var(--border);border-radius:var(--r);background:var(--surface)}
+
+@media(max-width:800px){
+  .cmp-inputs,.cmp-summaries{grid-template-columns:1fr}
+  .cmp-sec{padding:2rem 1.25rem}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr">
+    <a href="#" class="logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 14 14" fill="none">
+          <circle cx="4" cy="7" r="2.5" fill="white" opacity=".5"/>
+          <circle cx="10" cy="5" r="2" fill="white" opacity=".7"/>
+          <circle cx="10" cy="10" r="1.5" fill="white"/>
+        </svg>
+      </div>
+      HygieneCalc AFH
+    </a>
+    <div class="hdr-right">
+      <span class="hdr-badge" data-i="badge"></span>
+      <div class="lang-switcher">
+        <button class="lang-btn" onclick="setLang('pl')">PL</button>
+        <button class="lang-btn active" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" onclick="setLang('de')">DE</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="tab-nav">
+  <div class="tab-nav-inner">
+    <button class="tab-btn active" data-tab="tp" onclick="switchTab('tp')">
+      <span class="tab-icon"><svg viewBox="0 0 8 8"><circle cx="4" cy="4" r="3"/></svg></span>
+      <span data-i="tab_tp"></span>
+    </button>
+    <button class="tab-btn" data-tab="so" onclick="switchTab('so')">
+      <span class="tab-icon"><svg viewBox="0 0 8 8"><path d="M4 1C2.3 1 1 2.3 1 4c0 1 .4 1.9 1.1 2.5L4 8l1.9-1.5C6.6 5.9 7 5 7 4c0-1.7-1.3-3-3-3z" fill="white"/></svg></span>
+      <span data-i="tab_so"></span>
+    </button>
+    <button class="tab-btn" data-tab="tw" onclick="switchTab('tw')">
+      <span class="tab-icon"><svg viewBox="0 0 8 8"><rect x="1" y="2" width="6" height="4" rx="1"/><line x1="2.5" y1="4" x2="5.5" y2="4" stroke="white" stroke-width=".8"/></svg></span>
+      <span data-i="tab_tw"></span>
+    </button>
+    <button class="tab-btn" data-tab="cmp" onclick="switchTab('cmp')">
+      <span class="tab-icon" style="background:#4B3F6B"><svg viewBox="0 0 8 8" fill="none"><path d="M1 4h2M3 2v4M5 4h2M5 1v6" stroke="white" stroke-width=".9" stroke-linecap="round"/></svg></span>
+      <span data-i="tab_cmp"></span>
+    </button>
+  </div>
+</nav>
+
+<!-- MODULE 1: TOILET PAPER -->
+<div class="module active" id="mod-tp">
+  <section class="hero">
+    <div>
+      <p class="hero-eyebrow" data-i="tp_eyebrow"></p>
+      <h1 data-i="tp_h1"></h1>
+      <p class="hero-desc" data-i="tp_desc"></p>
+      <a href="#calc-tp" class="cta-btn"><span data-i="cta_go"></span><svg viewBox="0 0 14 14"><path d="M2 7h10M7 2l5 5-5 5"/></svg></a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="stat-num">7.5</div><div class="stat-lbl" data-i="tp_stat1"></div></div>
+      <div class="hero-stat"><div class="stat-num">4.5</div><div class="stat-lbl" data-i="tp_stat2"></div></div>
+      <div class="hero-stat"><div class="stat-num">100×140</div><div class="stat-lbl" data-i="tp_stat3"></div></div>
+      <div class="hero-stat"><div class="stat-num">3×</div><div class="stat-lbl" data-i="tp_stat4"></div></div>
+    </div>
+  </section>
+  <hr class="div">
+  <section class="calc-sec" id="calc-tp">
+    <div class="sec-hdr">
+      <h2 class="sec-title" data-i="tp_calc_title"></h2>
+      <span class="sec-sub" data-i="realtime"></span>
+    </div>
+    <div class="form-grid">
+      <div class="form-panel">
+        <p class="panel-lbl" data-i="tp_panel1"></p>
+        <div class="fg">
+          <label class="fl" data-i="tp_type_lbl"></label>
+          <select id="tp-type" onchange="tpPreset()">
+            <option value="custom" data-i="opt_custom"></option>
+            <option value="std" selected data-i="tp_opt_std"></option>
+            <option value="jrt" data-i="tp_opt_jrt"></option>
+            <option value="maxi" data-i="tp_opt_maxi"></option>
+          </select>
+        </div>
+        <div class="r2 fg">
+          <div><label class="fl" data-i="tp_rolls_lbl"></label><input type="number" id="tp-rolls" value="10" min="1" oninput="tpCalc()"></div>
+          <div><label class="fl" data-i="tp_spr_lbl"></label><input type="number" id="tp-spr" value="250" min="1" oninput="tpCalc()"></div>
+        </div>
+        <div class="r2 fg">
+          <div><label class="fl" data-i="tp_slen_lbl"></label><input type="number" id="tp-slen" value="140" min="80" oninput="tpCalc()"></div>
+          <div><label class="fl" data-i="tp_swid_lbl"></label><input type="number" id="tp-swid" value="100" min="80" oninput="tpCalc()"></div>
+        </div>
+      </div>
+      <div class="form-panel">
+        <p class="panel-lbl" data-i="panel_users"></p>
+        <div class="r2 fg">
+          <div><label class="fl" data-i="users_day_lbl"></label><input type="number" id="tp-users" value="50" min="1" oninput="tpCalc()"></div>
+          <div><label class="fl" data-i="tp_vpd_lbl"></label><input type="number" id="tp-vpd" value="3" min="1" step=".5" oninput="tpCalc()"></div>
+        </div>
+        <div class="fg">
+          <label class="fl" data-i="user_profile_lbl"></label>
+          <div class="ptog">
+            <button class="pbtn" id="tp-btn-mixed" onclick="tpProfile('mixed')" data-i="prof_mixed"></button>
+            <button class="pbtn active" id="tp-btn-office" onclick="tpProfile('office')" data-i="prof_office60"></button>
+            <button class="pbtn" id="tp-btn-male" onclick="tpProfile('male')" data-i="prof_male"></button>
+            <button class="pbtn" id="tp-btn-female" onclick="tpProfile('female')" data-i="prof_female"></button>
+          </div>
+        </div>
+        <div class="r3 fg">
+          <div><label class="fl" data-i="tp_sw_lbl"></label><input type="number" id="tp-sw" value="7.5" min="1" step=".5" oninput="tpCalc()"></div>
+          <div><label class="fl" data-i="tp_sm_lbl"></label><input type="number" id="tp-sm" value="4.5" min="1" step=".5" oninput="tpCalc()"></div>
+          <div><label class="fl" data-i="tp_pw_lbl"></label><input type="number" id="tp-pw" value="60" min="0" max="100" oninput="tpCalc()"></div>
+        </div>
+      </div>
+    </div>
+    <div class="results-row">
+      <div class="rc"><div class="result-label" data-i="days_stock"></div><div class="result-value" id="tp-r1">—</div><div class="result-unit" data-i="working_days"></div></div>
+      <div class="rc"><div class="result-label" data-i="rolls_day"></div><div class="result-value" id="tp-r2">—</div><div class="result-unit" data-i="rolls_unit"></div></div>
+      <div class="rc"><div class="result-label" data-i="sheets_day"></div><div class="result-value" id="tp-r3">—</div><div class="result-unit" data-i="sheets_unit"></div></div>
+      <div class="rc"><div class="result-label" data-i="paper_day"></div><div class="result-value" id="tp-r4">—</div><div class="result-unit" data-i="linear_m"></div></div>
+    </div>
+    <div class="sw">
+      <div class="sm"><span data-i="stock_adequacy"></span><span id="tp-slbl">—</span></div>
+      <div class="st"><div class="sf" id="tp-sf" style="width:0%"></div></div>
+    </div>
+    <div class="verdict" id="tp-verdict" style="display:none"></div>
+    <div class="dtw"><div class="dth" data-i="calc_details"></div><table class="dt" id="tp-dt"></table></div>
+  </section>
+  <section class="method">
+    <div class="method-inner">
+      <p class="mey" data-i="tp_method_ey"></p>
+      <h2 class="mt" data-i="method_title"></h2>
+      <div class="mgrid">
+        <div class="mc"><div class="mc-n">01</div><div class="mc-t" data-i="tp_m1t"></div><div class="mc-d" data-i="tp_m1d"></div></div>
+        <div class="mc"><div class="mc-n">02</div><div class="mc-t" data-i="tp_m2t"></div><div class="mc-d" data-i="tp_m2d"></div></div>
+        <div class="mc"><div class="mc-n">03</div><div class="mc-t" data-i="tp_m3t"></div><div class="mc-d" data-i="tp_m3d"></div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- MODULE 2: HAND SOAP -->
+<div class="module" id="mod-so">
+  <section class="hero">
+    <div>
+      <p class="hero-eyebrow" data-i="so_eyebrow"></p>
+      <h1 data-i="so_h1"></h1>
+      <p class="hero-desc" data-i="so_desc"></p>
+      <a href="#calc-so" class="cta-btn"><span data-i="cta_go"></span><svg viewBox="0 0 14 14"><path d="M2 7h10M7 2l5 5-5 5"/></svg></a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="stat-num">0.4–1.0</div><div class="stat-lbl" data-i="so_stat1"></div></div>
+      <div class="hero-stat"><div class="stat-num">1.0–2.0</div><div class="stat-lbl" data-i="so_stat2"></div></div>
+      <div class="hero-stat"><div class="stat-num">3–5×</div><div class="stat-lbl" data-i="so_stat3"></div></div>
+      <div class="hero-stat"><div class="stat-num">~40%</div><div class="stat-lbl" data-i="so_stat4"></div></div>
+    </div>
+  </section>
+  <hr class="div">
+  <section class="calc-sec" id="calc-so">
+    <div class="sec-hdr">
+      <h2 class="sec-title" data-i="so_ref_title"></h2>
+      <span class="sec-sub">PubMed 1988, CleanLink</span>
+    </div>
+    <div class="rfw">
+      <div class="rfh" data-i="so_ref_hdr"></div>
+      <table class="rft">
+        <thead><tr><th data-i="so_th1"></th><th data-i="so_th2"></th><th data-i="so_th3"></th><th data-i="so_th4"></th></tr></thead>
+        <tbody>
+          <tr><td data-i="so_r1c1"></td><td>0.4–0.7 ml</td><td><span class="badge b-ok" data-i="badge_high"></span></td><td data-i="so_r1c4"></td></tr>
+          <tr><td data-i="so_r2c1"></td><td>0.4–0.8 ml</td><td><span class="badge b-ok" data-i="badge_high"></span></td><td data-i="so_r2c4"></td></tr>
+          <tr><td data-i="so_r3c1"></td><td>1.0–1.5 ml</td><td><span class="badge b-ok" data-i="badge_high"></span></td><td data-i="so_r3c4"></td></tr>
+          <tr><td data-i="so_r4c1"></td><td>0.7–1.0 ml</td><td><span class="badge b-ok" data-i="badge_high"></span></td><td data-i="so_r4c4"></td></tr>
+          <tr><td data-i="so_r5c1"></td><td>1.5–3.0 ml</td><td><span class="badge b-warn" data-i="badge_low_ctrl"></span></td><td data-i="so_r5c4"></td></tr>
+          <tr><td data-i="so_r6c1"></td><td>3.0–5.0 ml</td><td><span class="badge b-ok" data-i="badge_clinical"></span></td><td data-i="so_r6c4"></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="sec-hdr" style="margin-top:1rem">
+      <h2 class="sec-title" data-i="so_calc_title"></h2>
+      <span class="sec-sub" data-i="realtime"></span>
+    </div>
+    <div class="form-grid">
+      <div class="form-panel">
+        <p class="panel-lbl" data-i="so_panel1"></p>
+        <div class="fg">
+          <label class="fl" data-i="so_type_lbl"></label>
+          <select id="so-type" onchange="soPreset()">
+            <option value="foam-t" data-i="so_opt_foamt"></option>
+            <option value="foam-a" data-i="so_opt_foama"></option>
+            <option value="liq-t" selected data-i="so_opt_liqt"></option>
+            <option value="liq-a" data-i="so_opt_liqa"></option>
+            <option value="bulk" data-i="so_opt_bulk"></option>
+            <option value="med" data-i="so_opt_med"></option>
+            <option value="custom" data-i="opt_custom"></option>
+          </select>
+        </div>
+        <div class="r2 fg">
+          <div><label class="fl" data-i="so_dose_lbl"></label><input type="number" id="so-dose" value="1.2" min=".1" step=".1" oninput="soCalc()"></div>
+          <div><label class="fl" data-i="so_vol_lbl"></label><input type="number" id="so-vol" value="1000" min="50" step="50" oninput="soCalc()"></div>
+        </div>
+        <div class="r2 fg">
+          <div><label class="fl" data-i="so_nd_lbl"></label><input type="number" id="so-nd" value="4" min="1" oninput="soCalc()"></div>
+          <div><label class="fl" data-i="so_nr_lbl"></label><input type="number" id="so-nr" value="2" min="0" oninput="soCalc()"></div>
+        </div>
+      </div>
+      <div class="form-panel">
+        <p class="panel-lbl" data-i="panel_users"></p>
+        <div class="r2 fg">
+          <div><label class="fl" data-i="users_day_lbl"></label><input type="number" id="so-users" value="50" min="1" oninput="soCalc()"></div>
+          <div><label class="fl" data-i="so_wpd_lbl"></label><input type="number" id="so-wpd" value="4" min="1" step=".5" oninput="soCalc()"></div>
+        </div>
+        <div class="fg">
+          <label class="fl" data-i="facility_profile_lbl"></label>
+          <div class="ptog">
+            <button class="pbtn active" id="so-btn-office" onclick="soProfile('office')" data-i="fac_office"></button>
+            <button class="pbtn" id="so-btn-food" onclick="soProfile('food')" data-i="fac_food"></button>
+            <button class="pbtn" id="so-btn-health" onclick="soProfile('health')" data-i="fac_health"></button>
+            <button class="pbtn" id="so-btn-industry" onclick="soProfile('industry')" data-i="fac_industry"></button>
+          </div>
+        </div>
+        <div class="r2 fg">
+          <div><label class="fl" data-i="so_comp_lbl"></label><input type="number" id="so-comp" value="75" min="1" max="100" oninput="soCalc()"></div>
+          <div><label class="fl" data-i="so_dpm_lbl"></label><input type="number" id="so-dpm" value="1" min="1" max="5" oninput="soCalc()"></div>
+        </div>
+      </div>
+    </div>
+    <div class="results-row">
+      <div class="rc"><div class="result-label" data-i="days_stock"></div><div class="result-value" id="so-r1">—</div><div class="result-unit" data-i="working_days"></div></div>
+      <div class="rc"><div class="result-label" data-i="soap_day"></div><div class="result-value" id="so-r2">—</div><div class="result-unit" data-i="ml_total"></div></div>
+      <div class="rc"><div class="result-label" data-i="cartridges_month"></div><div class="result-value" id="so-r3">—</div><div class="result-unit" data-i="units_22"></div></div>
+      <div class="rc"><div class="result-label" data-i="washes_cartridge"></div><div class="result-value" id="so-r4">—</div><div class="result-unit" data-i="uses_per_cart"></div></div>
+    </div>
+    <div class="sw">
+      <div class="sm"><span data-i="stock_adequacy"></span><span id="so-slbl">—</span></div>
+      <div class="st"><div class="sf" id="so-sf" style="width:0%"></div></div>
+    </div>
+    <div class="verdict" id="so-verdict" style="display:none"></div>
+    <div class="dtw"><div class="dth" data-i="calc_details"></div><table class="dt" id="so-dt"></table></div>
+  </section>
+  <section class="method">
+    <div class="method-inner">
+      <p class="mey" data-i="so_method_ey"></p>
+      <h2 class="mt" data-i="method_title"></h2>
+      <div class="mgrid">
+        <div class="mc"><div class="mc-n">01</div><div class="mc-t" data-i="so_m1t"></div><div class="mc-d" data-i="so_m1d"></div></div>
+        <div class="mc"><div class="mc-n">02</div><div class="mc-t" data-i="so_m2t"></div><div class="mc-d" data-i="so_m2d"></div></div>
+        <div class="mc"><div class="mc-n">03</div><div class="mc-t" data-i="so_m3t"></div><div class="mc-d" data-i="so_m3d"></div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- MODULE 3: ROLL TOWEL -->
+<div class="module" id="mod-tw">
+  <section class="hero">
+    <div>
+      <p class="hero-eyebrow" data-i="tw_eyebrow"></p>
+      <h1 data-i="tw_h1"></h1>
+      <p class="hero-desc" data-i="tw_desc"></p>
+      <a href="#calc-tw" class="cta-btn"><span data-i="cta_go"></span><svg viewBox="0 0 14 14"><path d="M2 7h10M7 2l5 5-5 5"/></svg></a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="stat-num">20–25 cm</div><div class="stat-lbl" data-i="tw_stat1"></div></div>
+      <div class="hero-stat"><div class="stat-num">1–3</div><div class="stat-lbl" data-i="tw_stat2"></div></div>
+      <div class="hero-stat"><div class="stat-num">~150 m</div><div class="stat-lbl" data-i="tw_stat3"></div></div>
+      <div class="hero-stat"><div class="stat-num">–25%</div><div class="stat-lbl" data-i="tw_stat4"></div></div>
+    </div>
+  </section>
+  <hr class="div">
+  <section class="calc-sec" id="calc-tw">
+    <div class="sec-hdr">
+      <h2 class="sec-title" data-i="tw_ref_title"></h2>
+      <span class="sec-sub">Power Hygiene UK 2025, Zogics, MIT LCA</span>
+    </div>
+    <div class="rfw">
+      <div class="rfh" data-i="tw_ref_hdr"></div>
+      <table class="rft">
+        <thead><tr><th data-i="tw_th1"></th><th data-i="tw_th2"></th><th data-i="tw_th3"></th><th data-i="tw_th4"></th><th data-i="tw_th5"></th></tr></thead>
+        <tbody>
+          <tr><td data-i="tw_r1c1"></td><td>100–200 m</td><td>20–30 cm</td><td><span class="badge b-ok" data-i="ctrl_high"></span></td><td data-i="tw_r1c5"></td></tr>
+          <tr><td data-i="tw_r2c1"></td><td>100–300 m</td><td>20–25 cm</td><td><span class="badge b-ok" data-i="ctrl_high"></span></td><td data-i="tw_r2c5"></td></tr>
+          <tr><td data-i="tw_r3c1"></td><td>60–100 m</td><td>20–25 cm</td><td><span class="badge b-ok" data-i="ctrl_high"></span></td><td data-i="tw_r3c5"></td></tr>
+          <tr><td data-i="tw_r4c1"></td><td>200–600 m</td><td>20–30 cm</td><td><span class="badge b-warn" data-i="ctrl_med"></span></td><td data-i="tw_r4c5"></td></tr>
+          <tr><td data-i="tw_r5c1"></td><td>12–50 m</td><td>23–28 cm</td><td><span class="badge b-warn" data-i="ctrl_low"></span></td><td data-i="tw_r5c5"></td></tr>
+          <tr><td data-i="tw_r6c1"></td><td>n/a</td><td>24×22 cm</td><td><span class="badge b-info" data-i="ctrl_one"></span></td><td data-i="tw_r6c5"></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="sec-hdr" style="margin-top:1rem">
+      <h2 class="sec-title" data-i="tw_calc_title"></h2>
+      <span class="sec-sub" data-i="realtime"></span>
+    </div>
+    <div class="form-grid">
+      <div class="form-panel">
+        <p class="panel-lbl" data-i="tw_panel1"></p>
+        <div class="fg">
+          <label class="fl" data-i="tw_type_lbl"></label>
+          <select id="tw-type" onchange="twPreset()">
+            <option value="cp" selected data-i="tw_opt_cp"></option>
+            <option value="maxi" data-i="tw_opt_maxi"></option>
+            <option value="mini" data-i="tw_opt_mini"></option>
+            <option value="jumbo" data-i="tw_opt_jumbo"></option>
+            <option value="kitchen" data-i="tw_opt_kitchen"></option>
+            <option value="custom" data-i="opt_custom"></option>
+          </select>
+        </div>
+        <div class="r2 fg">
+          <div><label class="fl" data-i="tw_rolls_lbl"></label><input type="number" id="tw-rolls" value="6" min="1" oninput="twCalc()"></div>
+          <div><label class="fl" data-i="tw_len_lbl"></label><input type="number" id="tw-len" value="150" min="1" oninput="twCalc()"></div>
+        </div>
+        <div class="r3 fg">
+          <div><label class="fl" data-i="tw_nd_lbl"></label><input type="number" id="tw-nd" value="3" min="1" oninput="twCalc()"></div>
+          <div><label class="fl" data-i="tw_seg_lbl"></label><input type="number" id="tw-seg" value="22" min="10" max="100" oninput="twCalc()"></div>
+          <div><label class="fl" data-i="tw_spu_lbl"></label><input type="number" id="tw-spu" value="1.5" min=".5" step=".5" oninput="twCalc()"></div>
+        </div>
+      </div>
+      <div class="form-panel">
+        <p class="panel-lbl" data-i="panel_users"></p>
+        <div class="r2 fg">
+          <div><label class="fl" data-i="users_day_lbl"></label><input type="number" id="tw-users" value="50" min="1" oninput="twCalc()"></div>
+          <div><label class="fl" data-i="tw_dpd_lbl"></label><input type="number" id="tw-dpd" value="3" min="1" step=".5" oninput="twCalc()"></div>
+        </div>
+        <div class="fg">
+          <label class="fl" data-i="facility_profile_lbl"></label>
+          <div class="ptog">
+            <button class="pbtn active" id="tw-btn-office" onclick="twProfile('office')" data-i="fac_office"></button>
+            <button class="pbtn" id="tw-btn-food" onclick="twProfile('food')" data-i="fac_food"></button>
+            <button class="pbtn" id="tw-btn-health" onclick="twProfile('health')" data-i="fac_health"></button>
+            <button class="pbtn" id="tw-btn-industry" onclick="twProfile('industry')" data-i="fac_industry"></button>
+          </div>
+        </div>
+        <div class="r2 fg">
+          <div><label class="fl" data-i="tw_waste_lbl"></label><input type="number" id="tw-waste" value="15" min="0" max="60" oninput="twCalc()"></div>
+          <div><label class="fl" data-i="tw_save_lbl"></label><input type="number" id="tw-save" value="20" min="0" max="50" oninput="twCalc()"></div>
+        </div>
+      </div>
+    </div>
+    <div class="results-row">
+      <div class="rc"><div class="result-label" data-i="days_stock"></div><div class="result-value" id="tw-r1">—</div><div class="result-unit" data-i="working_days"></div></div>
+      <div class="rc"><div class="result-label" data-i="paper_day_m"></div><div class="result-value" id="tw-r2">—</div><div class="result-unit" data-i="metres_unit"></div></div>
+      <div class="rc"><div class="result-label" data-i="rolls_month"></div><div class="result-value" id="tw-r3">—</div><div class="result-unit" data-i="units_22"></div></div>
+      <div class="rc"><div class="result-label" data-i="dries_roll"></div><div class="result-value" id="tw-r4">—</div><div class="result-unit" data-i="uses_per_roll"></div></div>
+    </div>
+    <div class="sw">
+      <div class="sm"><span data-i="stock_adequacy"></span><span id="tw-slbl">—</span></div>
+      <div class="st"><div class="sf" id="tw-sf" style="width:0%"></div></div>
+    </div>
+    <div class="verdict" id="tw-verdict" style="display:none"></div>
+    <div class="dtw"><div class="dth" data-i="calc_details"></div><table class="dt" id="tw-dt"></table></div>
+  </section>
+  <section class="method">
+    <div class="method-inner">
+      <p class="mey" data-i="tw_method_ey"></p>
+      <h2 class="mt" data-i="method_title"></h2>
+      <div class="mgrid">
+        <div class="mc"><div class="mc-n">01</div><div class="mc-t" data-i="tw_m1t"></div><div class="mc-d" data-i="tw_m1d"></div></div>
+        <div class="mc"><div class="mc-n">02</div><div class="mc-t" data-i="tw_m2t"></div><div class="mc-d" data-i="tw_m2d"></div></div>
+        <div class="mc"><div class="mc-n">03</div><div class="mc-t" data-i="tw_m3t"></div><div class="mc-d" data-i="tw_m3d"></div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- MODULE 4: AI COMPARISON -->
+<div class="module" id="mod-cmp">
+  <section class="hero">
+    <div>
+      <p class="hero-eyebrow" data-i="cmp_eyebrow"></p>
+      <h1 data-i="cmp_h1"></h1>
+      <p class="hero-desc" data-i="cmp_desc"></p>
+      <a href="#cmp-inputs" class="cta-btn" style="background:#4B3F6B">
+        <span data-i="cta_go"></span>
+        <svg viewBox="0 0 14 14"><path d="M2 7h10M7 2l5 5-5 5"/></svg>
+      </a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="stat-num" style="color:#4B3F6B">3</div><div class="stat-lbl" data-i="cmp_stat1"></div></div>
+      <div class="hero-stat"><div class="stat-num" style="color:#4B3F6B">AI</div><div class="stat-lbl" data-i="cmp_stat2"></div></div>
+      <div class="hero-stat"><div class="stat-num" style="color:#4B3F6B">∞</div><div class="stat-lbl" data-i="cmp_stat3"></div></div>
+      <div class="hero-stat"><div class="stat-num" style="color:#4B3F6B">▲</div><div class="stat-lbl" data-i="cmp_stat4"></div></div>
+    </div>
+  </section>
+  <hr class="div">
+  <section class="cmp-sec" id="cmp-inputs">
+    <div class="sec-hdr">
+      <h2 class="sec-title" data-i="cmp_input_title"></h2>
+      <span class="sec-sub" data-i="cmp_input_sub"></span>
+    </div>
+
+    <div class="cmp-inputs">
+      <!-- SLOT 1 -->
+      <div class="cmp-slot" id="slot-0" ondragover="slotDragOver(event,0)" ondragleave="slotDragLeave(0)" ondrop="slotDrop(event,0)">
+        <div class="cmp-slot-header">
+          <span class="cmp-slot-num" data-i="cmp_slot1"></span>
+          <button class="cmp-slot-clear" onclick="clearSlot(0)" data-i="cmp_clear"></button>
+        </div>
+        <div class="cmp-url-row">
+          <div class="cmp-url-icon"><svg viewBox="0 0 12 12"><path d="M5 2H3a1 1 0 00-1 1v6a1 1 0 001 1h6a1 1 0 001-1V7M7 1h4m0 0v4m0-4L5 7"/></svg></div>
+          <input class="cmp-url-input" id="url-0" type="url" data-i-placeholder="cmp_url_ph">
+        </div>
+        <input class="cmp-slot-name" id="name-0" type="text" data-i-placeholder="cmp_name_ph">
+        <div class="cmp-divider"><span data-i="cmp_paste_label"></span></div>
+        <textarea class="cmp-slot-drop" id="text-0" data-i-placeholder="cmp_paste_ph"></textarea>
+        <span class="cmp-drop-hint" data-i="cmp_drop_hint"></span>
+      </div>
+      <!-- SLOT 2 -->
+      <div class="cmp-slot" id="slot-1" ondragover="slotDragOver(event,1)" ondragleave="slotDragLeave(1)" ondrop="slotDrop(event,1)">
+        <div class="cmp-slot-header">
+          <span class="cmp-slot-num" data-i="cmp_slot2"></span>
+          <button class="cmp-slot-clear" onclick="clearSlot(1)" data-i="cmp_clear"></button>
+        </div>
+        <div class="cmp-url-row">
+          <div class="cmp-url-icon"><svg viewBox="0 0 12 12"><path d="M5 2H3a1 1 0 00-1 1v6a1 1 0 001 1h6a1 1 0 001-1V7M7 1h4m0 0v4m0-4L5 7"/></svg></div>
+          <input class="cmp-url-input" id="url-1" type="url" data-i-placeholder="cmp_url_ph">
+        </div>
+        <input class="cmp-slot-name" id="name-1" type="text" data-i-placeholder="cmp_name_ph">
+        <div class="cmp-divider"><span data-i="cmp_paste_label"></span></div>
+        <textarea class="cmp-slot-drop" id="text-1" data-i-placeholder="cmp_paste_ph"></textarea>
+        <span class="cmp-drop-hint" data-i="cmp_drop_hint"></span>
+      </div>
+      <!-- SLOT 3 -->
+      <div class="cmp-slot" id="slot-2" ondragover="slotDragOver(event,2)" ondragleave="slotDragLeave(2)" ondrop="slotDrop(event,2)">
+        <div class="cmp-slot-header">
+          <span class="cmp-slot-num" data-i="cmp_slot3"></span>
+          <button class="cmp-slot-clear" onclick="clearSlot(2)" data-i="cmp_clear"></button>
+        </div>
+        <div class="cmp-url-row">
+          <div class="cmp-url-icon"><svg viewBox="0 0 12 12"><path d="M5 2H3a1 1 0 00-1 1v6a1 1 0 001 1h6a1 1 0 001-1V7M7 1h4m0 0v4m0-4L5 7"/></svg></div>
+          <input class="cmp-url-input" id="url-2" type="url" data-i-placeholder="cmp_url_ph">
+        </div>
+        <input class="cmp-slot-name" id="name-2" type="text" data-i-placeholder="cmp_name_ph">
+        <div class="cmp-divider"><span data-i="cmp_paste_label"></span></div>
+        <textarea class="cmp-slot-drop" id="text-2" data-i-placeholder="cmp_paste_ph"></textarea>
+        <span class="cmp-drop-hint" data-i="cmp_drop_hint"></span>
+      </div>
+    </div>
+
+    <div class="cmp-run-row">
+      <button class="cmp-run-btn" id="cmp-run-btn" onclick="runComparison()">
+        <svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="5"/><path d="M5 7l1.5 1.5L9 5"/></svg>
+        <span data-i="cmp_run"></span>
+      </button>
+      <span class="cmp-status" id="cmp-status"></span>
+    </div>
+
+    <div class="cmp-result" id="cmp-result">
+      <div class="sec-hdr" style="margin-bottom:1.25rem">
+        <h2 class="sec-title" data-i="cmp_summary_title"></h2>
+      </div>
+      <div class="cmp-summaries" id="cmp-summaries"></div>
+      <div class="sec-hdr" style="margin-bottom:1.25rem;margin-top:.5rem">
+        <h2 class="sec-title" data-i="cmp_table_title"></h2>
+        <span class="sec-sub" data-i="cmp_table_sub"></span>
+      </div>
+      <div class="cmp-table-wrap">
+        <div class="cmp-table-hdr" data-i="cmp_table_hdr"></div>
+        <div id="cmp-table-inner"></div>
+      </div>
+      <p class="cmp-note" id="cmp-note"></p>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div class="fi">
+    <span>HygieneCalc AFH · Washroom Supply Calculator Suite</span>
+    <span>Data: Cottonelle/Burke 2020 · PubMed 1988 AJIC · Power Hygiene UK 2025 · CDC · Zogics · MIT LCA</span>
+  </div>
+</footer>
+
+<script>
+const T = {
+en:{
+badge:'Washroom Supply Calculator Suite — v1.1',
+tab_tp:'Toilet Paper',tab_so:'Hand Soap',tab_tw:'Roll Towel',tab_cmp:'AI Compare',
+tp_eyebrow:'Module 1 / 3',
+tp_h1:'Toilet<br>paper<br><em>— stock.</em>',
+tp_desc:'Calculator based on Cottonelle/Burke research (2020 Toileting Diary Fact Book). Accounts for gender profile, JRT/Maxi roll format and daily visit frequency.',
+tp_stat1:'sheets / visit — women',tp_stat2:'sheets / visit — men',tp_stat3:'mm — EU/UK standard sheet',tp_stat4:'avg. visits / person / day',
+tp_calc_title:'Stock calculator — toilet paper',
+tp_panel1:'Roll parameters',panel_users:'Users & habits',
+tp_type_lbl:'Roll format (preset)',opt_custom:'Custom',
+tp_opt_std:'Standard (250 sheets, 100×140 mm)',tp_opt_jrt:'Jumbo JRT (400 sheets, 100×140 mm)',tp_opt_maxi:'Maxi Jumbo (700 sheets, 100×140 mm)',
+tp_rolls_lbl:'Rolls in stock',tp_spr_lbl:'Sheets per roll',tp_slen_lbl:'Sheet length (mm)',tp_swid_lbl:'Sheet width (mm)',
+users_day_lbl:'Users per day',tp_vpd_lbl:'Visits / person / day',
+user_profile_lbl:'User profile',
+prof_mixed:'Mixed',prof_office60:'Office 60%F',prof_male:'Men only',prof_female:'Women only',
+tp_sw_lbl:'Sheets / visit — F',tp_sm_lbl:'Sheets / visit — M',tp_pw_lbl:'Female share (%)',
+so_eyebrow:'Module 2 / 3',
+so_h1:'Hand soap<br>dispenser<br><em>— stock.</em>',
+so_desc:'Soap dosage calculator based on clinical research (PubMed 1988) and AFH industry data. Accounts for dispenser type (foam / liquid), cartridge capacity and facility profile.',
+so_stat1:'ml / dose — foam soap',so_stat2:'ml / dose — liquid soap',so_stat3:'handwashes / person / day',so_stat4:'less soap — foam vs liquid',
+so_ref_title:'Reference dosage table',so_ref_hdr:'Soap doses by dispenser type and environment',
+so_th1:'Dispenser / soap type',so_th2:'Dose ml / wash',so_th3:'Efficacy',so_th4:'Application',
+so_r1c1:'Foam soap — manual',so_r1c4:'Offices, public facilities',
+so_r2c1:'Foam soap — touchless (sensor)',so_r2c4:'Healthcare, food service',
+so_r3c1:'Liquid soap — manual',so_r3c4:'General use',
+so_r4c1:'Liquid soap — touchless',so_r4c4:'Offices, hotels',
+so_r5c1:'Liquid soap — bulk wall-mount',so_r5c4:'Industrial, warehouses',
+so_r6c1:'Antibacterial / medical 4% CHG',so_r6c4:'Healthcare, food production',
+badge_high:'high',badge_low_ctrl:'low control',badge_clinical:'clinical',
+so_calc_title:'Stock calculator — hand soap',
+so_panel1:'Dispenser & product parameters',
+so_type_lbl:'Dispenser / soap type (preset)',
+so_opt_foamt:'Foam — manual (0.6 ml / dose)',so_opt_foama:'Foam — touchless (0.5 ml / dose)',
+so_opt_liqt:'Liquid — manual (1.2 ml / dose)',so_opt_liqa:'Liquid — touchless (0.85 ml / dose)',
+so_opt_bulk:'Liquid — bulk (2.0 ml / dose)',so_opt_med:'Antibacterial / medical (3.5 ml / dose)',
+so_dose_lbl:'Dose ml / wash',so_vol_lbl:'Cartridge capacity (ml)',
+so_nd_lbl:'Dispensers (units)',so_nr_lbl:'Spare cartridges / dispenser',
+facility_profile_lbl:'Facility profile',
+fac_office:'Office',fac_food:'Food service',fac_health:'Healthcare',fac_industry:'Industrial',
+so_wpd_lbl:'Handwashes / person / day',so_comp_lbl:'Hand hygiene compliance (%)',so_dpm_lbl:'Doses / wash (multi-pump)',
+tw_eyebrow:'Module 3 / 3',
+tw_h1:'Paper<br>roll towel<br><em>— stock.</em>',
+tw_desc:'Calculator based on AFH data for roll paper towels — centrepull, maxi and jumbo formats. Accounts for sheet length, dispenser type, waste factor and facility profile.',
+tw_stat1:'sheet length / dry — standard',tw_stat2:'sheets / visit — office',tw_stat3:'centrepull roll length',tw_stat4:'consumption — controlled dispenser',
+tw_ref_title:'Reference roll format table',tw_ref_hdr:'AFH paper towel roll types — lengths and dispensing',
+tw_th1:'Format / dispenser type',tw_th2:'Roll length',tw_th3:'Sheet / dry',tw_th4:'Consumption control',tw_th5:'Application',
+tw_r1c1:'Centrepull (centre-feed)',tw_r1c5:'Offices, food service, public WCs',
+tw_r2c1:'Maxi roll (wall-mount dispenser)',tw_r2c5:'High-traffic facilities, industrial',
+tw_r3c1:'Mini maxi / compact',tw_r3c5:'Small offices, clinics, reception areas',
+tw_r4c1:'Jumbo roll',tw_r4c5:'Industrial, very high-traffic venues',
+tw_r5c1:'Kitchen / breakroom roll',tw_r5c5:'Office kitchens, breakrooms',
+tw_r6c1:'Folded towel (Z/C-fold)',tw_r6c5:'Healthcare, prestige washrooms',
+ctrl_high:'high',ctrl_med:'medium',ctrl_low:'low',ctrl_one:'one at a time',
+tw_calc_title:'Stock calculator — roll towel',
+tw_panel1:'Roll & dispenser parameters',tw_type_lbl:'Roll format (preset)',
+tw_opt_cp:'Centrepull — 150 m / roll',tw_opt_maxi:'Maxi roll — 200 m / roll',
+tw_opt_mini:'Mini maxi — 80 m / roll',tw_opt_jumbo:'Jumbo roll — 300 m / roll',tw_opt_kitchen:'Kitchen roll — 25 m / roll',
+tw_rolls_lbl:'Rolls in stock',tw_len_lbl:'Roll length (m)',
+tw_nd_lbl:'Dispensers (units)',tw_seg_lbl:'Sheet length / dry (cm)',tw_spu_lbl:'Sheets / visit',
+tw_dpd_lbl:'Hand-dries / person / day',tw_waste_lbl:'Waste factor (%)',tw_save_lbl:'Dispenser saving (%)',
+days_stock:'Days of stock',working_days:'working days',rolls_day:'Rolls / day',rolls_unit:'rolls',
+sheets_day:'Sheets / day',sheets_unit:'sheets',
+paper_day:'Paper / day',paper_day_m:'Paper / day',linear_m:'linear metres',metres_unit:'metres',
+soap_day:'Soap / day',ml_total:'ml total',
+cartridges_month:'Cartridges / month',units_22:'units (22 working days)',
+washes_cartridge:'Washes / cartridge',uses_per_cart:'uses per cartridge',
+rolls_month:'Rolls / month',dries_roll:'Dries / roll',uses_per_roll:'uses per roll',
+stock_adequacy:'Stock adequacy (30-day scale)',realtime:'Results update in real time',
+calc_details:'Calculation details',cta_go:'Go to calculator',
+method_title:'Where do these numbers come from?',
+tp_method_ey:'Methodology — toilet paper',
+tp_m1t:'Usage per visit',tp_m1d:'Cottonelle/Burke Incorporated — 2020 Toileting Diary Fact Book: women use 6.4–8.1 sheets, men 4.5–8.1 sheets per visit. For AFH environments, midpoint values are applied: F = 7.5; M = 4.5.',
+tp_m2t:'EU/UK sheet standard',tp_m2d:'In Germany, France, the Netherlands, the UK and Poland, the standard commercial sheet measures approx. 100×140 mm — similar to a postcard. Sources: Softer Paper Co. and Baoda Paper Enterprise.',
+tp_m3t:'Visit frequency',tp_m3d:'The average person visits the restroom 3–5 times per day (Cottonelle). In office environments, 3 visits is used as the baseline — some needs are met outside the workplace.',
+so_method_ey:'Methodology — hand soap',
+so_m1t:'Clinical dosage research',so_m1d:'Research published in the American Journal of Infection Control (PubMed 1988): soap consumption ranges from 0.4–9 ml per wash, strongly dependent on environment. Clinical staff use significantly more than office workers (p < 0.05).',
+so_m2t:'Foam vs liquid soap',so_m2d:'According to industry data (CleanLink, AAA Workspace), foam requires 40–50% less soap than its liquid equivalent while maintaining hygiene effectiveness. Touchless dispensers reduce consumption by an additional 10–20%.',
+so_m3t:'Compliance & frequency',so_m3d:'CDC recommends handwashing after every restroom visit. Office baseline: 3–5 times per person per day. Food service: 8–15×, healthcare: 20–100×. 75% compliance is a typical office benchmark.',
+tw_method_ey:'Methodology — roll towel',
+tw_m1t:'Usage per visit',tw_m1d:'UK research (Power Hygiene 2025): small offices use 2–4 sheets per visit, medium offices 1–3. Office workers consume approx. 3,000 towels per year. One sheet pull ≈ 20–25 cm.',
+tw_m2t:'Dispenser impact on consumption',tw_m2d:'Controlled-feed dispensers (centrepull, maxi with lock) reduce consumption by 20–30% vs. free-roll dispensers. Smart dispensers add a further 5–10% saving. Office waste factor: 10–20%.',
+tw_m3t:'Metric length model',tw_m3d:'Roll towel dispensers have no fixed sheet — the user pulls any length. The calculator uses linear metres. Standard commercial rolls: 20–300 m (Zogics, MIT LCA). Industrial rolls: 150–600 m.',
+v_ok:'Stock covers more than 2 weeks — adequate level. No reorder required yet.',
+v_warn:'Approx. one week of stock remaining — reorder recommended within the next few working days.',
+v_danger:'Stock critically low (< 7 days) — immediate reorder required!',
+v_days:'days',
+dt_tp:['Total sheets in stock','Total paper length in stock','Sheet area','Avg. sheets / visit (weighted)','Total visits per day','Paper consumed per visit','Rolls / working week (5 days)','Rolls / working month (22 days)','Linear metres consumed / day'],
+dt_so:['Soap per wash (incl. multi-pump)','Actual washes / person / day','Soap per user per day','Total soap consumed per day','Total stock volume','Total cartridges in stock','Washes per cartridge','Cartridges / working week (5 days)','Cartridges / working month (22 days)','Soap consumed per year (220 working days)'],
+dt_tw:['Net sheet / dry (after dispenser saving)','Gross paper / dry (incl. waste)','Paper per user per day','Total paper consumed per day','Total stock','Dries per roll','Days to roll change (1 dispenser)','Rolls / working week (5 days)','Rolls / working month (22 days)','Paper consumed per year (220 working days)'],
+cmp_eyebrow:'Module 4 / 4',
+cmp_h1:'AI<br>product<br><em>— compare.</em>',
+cmp_desc:'Enter the source URL and paste the page content for up to three suppliers. AI analyses all sources and produces a side-by-side quantitative, qualitative and price comparison with the best values highlighted in green.',
+cmp_stat1:'sources to compare',cmp_stat2:'powered analysis',cmp_stat3:'product categories',cmp_stat4:'best values highlighted',
+cmp_input_title:'Product sources — URL + paste content',
+cmp_input_sub:'Open supplier page → Ctrl+A, Ctrl+C → paste below. Add the URL as reference.',
+cmp_slot1:'Source 1',cmp_slot2:'Source 2',cmp_slot3:'Source 3',
+cmp_clear:'✕ clear',
+cmp_url_ph:'https://supplier.com/product-page',
+cmp_name_ph:'Product / supplier name (optional)…',
+cmp_paste_label:'paste content',
+cmp_paste_ph:'Open the supplier page, select all (Ctrl+A), copy (Ctrl+C) and paste here.\n\nOr drag & drop a .txt / .csv file onto this box.',
+cmp_drop_hint:'drag & drop .txt or .csv file',
+cmp_run:'Run AI comparison',
+cmp_summary_title:'Executive summary — three solutions',
+cmp_table_title:'Comparative analysis',
+cmp_table_sub:'Green = best value in category',
+cmp_table_hdr:'Criterion · Description or value · Best highlighted',
+cmp_err_min:'Please fill at least two slots (URL or pasted content) before running the comparison.',
+cmp_err_api:'API error — make sure the file is served via http://localhost:8080 (not file://).',
+cmp_thinking:'Analysing sources…',
+cmp_done:'Analysis complete.'
+},
+pl:{
+badge:'Kalkulator zużycia środków sanitarnych — v1.1',
+tab_tp:'Papier toaletowy',tab_so:'Mydło w płynie',tab_tw:'Ręcznik papierowy',tab_cmp:'Porównanie AI',
+tp_eyebrow:'Moduł 1 / 3',
+tp_h1:'Papier<br>toaletowy<br><em>— stan.</em>',
+tp_desc:'Kalkulator oparty na badaniach Cottonelle/Burke (2020 Toileting Diary Fact Book). Uwzględnia profil płci użytkowników, format rolki JRT/Maxi oraz częstotliwość wizyt.',
+tp_stat1:'listków / wizyta — kobiety',tp_stat2:'listków / wizyta — mężczyźni',tp_stat3:'mm — standard EU listek',tp_stat4:'śr. wizyt / osoba / dzień',
+tp_calc_title:'Kalkulator zapasów — papier toaletowy',
+tp_panel1:'Parametry rolki',panel_users:'Użytkownicy i nawyki',
+tp_type_lbl:'Format rolki (preset)',opt_custom:'Własny',
+tp_opt_std:'Standardowa (250 listków, 100×140 mm)',tp_opt_jrt:'Jumbo JRT (400 listków, 100×140 mm)',tp_opt_maxi:'Maxi Jumbo (700 listków, 100×140 mm)',
+tp_rolls_lbl:'Rolki w magazynie',tp_spr_lbl:'Listków na rolkę',tp_slen_lbl:'Długość listka (mm)',tp_swid_lbl:'Szerokość listka (mm)',
+users_day_lbl:'Użytkowników / dzień',tp_vpd_lbl:'Wizyty / osoba / dzień',
+user_profile_lbl:'Profil użytkowników',
+prof_mixed:'Mieszany',prof_office60:'Biuro 60%K',prof_male:'Tylko mężczyźni',prof_female:'Tylko kobiety',
+tp_sw_lbl:'Listki / wizyta — K',tp_sm_lbl:'Listki / wizyta — M',tp_pw_lbl:'Udział kobiet (%)',
+so_eyebrow:'Moduł 2 / 3',
+so_h1:'Mydło<br>w dozowniku<br><em>— stan.</em>',
+so_desc:'Kalkulator dawkowania mydła oparty na badaniach klinicznych (PubMed 1988) i danych branży AFH. Uwzględnia typ dozownika (pianka / płyn), pojemność wkładu i profil obiektu.',
+so_stat1:'ml / dawka — mydło w piance',so_stat2:'ml / dawka — mydło w płynie',so_stat3:'myć rąk / osoba / dzień',so_stat4:'mniej mydła — pianka vs płyn',
+so_ref_title:'Tabela referencyjna dawkowania',so_ref_hdr:'Dawki mydła wg typu dozownika i środowiska',
+so_th1:'Typ dozownika / mydła',so_th2:'Dawka ml / mycie',so_th3:'Skuteczność',so_th4:'Zastosowanie',
+so_r1c1:'Pianka — ręczny',so_r1c4:'Biura, obiekty publiczne',
+so_r2c1:'Pianka — bezdotykowy (czujnik)',so_r2c4:'Służba zdrowia, gastronomia',
+so_r3c1:'Płyn — ręczny',so_r3c4:'Zastosowanie ogólne',
+so_r4c1:'Płyn — bezdotykowy',so_r4c4:'Biura, hotele',
+so_r5c1:'Płyn — zbiornikowy naścienny',so_r5c4:'Przemysł, magazyny',
+so_r6c1:'Antybakteryjny / medyczny 4% CHG',so_r6c4:'Służba zdrowia, produkcja spożywcza',
+badge_high:'wysoka',badge_low_ctrl:'niska kontrola',badge_clinical:'kliniczna',
+so_calc_title:'Kalkulator zapasów — mydło w płynie',
+so_panel1:'Parametry dozownika i produktu',
+so_type_lbl:'Typ dozownika / mydła (preset)',
+so_opt_foamt:'Pianka — ręczny (0,6 ml / dawka)',so_opt_foama:'Pianka — bezdotykowy (0,5 ml / dawka)',
+so_opt_liqt:'Płyn — ręczny (1,2 ml / dawka)',so_opt_liqa:'Płyn — bezdotykowy (0,85 ml / dawka)',
+so_opt_bulk:'Płyn — zbiornikowy (2,0 ml / dawka)',so_opt_med:'Antybakteryjny / medyczny (3,5 ml / dawka)',
+so_dose_lbl:'Dawka ml / mycie',so_vol_lbl:'Pojemność wkładu (ml)',
+so_nd_lbl:'Dozowniki (szt.)',so_nr_lbl:'Zapasowe wkłady / dozownik',
+facility_profile_lbl:'Profil obiektu',
+fac_office:'Biuro',fac_food:'Gastronomia',fac_health:'Służba zdrowia',fac_industry:'Przemysł',
+so_wpd_lbl:'Mycia rąk / osoba / dzień',so_comp_lbl:'Przestrzeganie higieny (%)',so_dpm_lbl:'Dawki / mycie (multi-pump)',
+tw_eyebrow:'Moduł 3 / 3',
+tw_h1:'Ręcznik<br>papierowy<br><em>— stan.</em>',
+tw_desc:'Kalkulator oparty na danych AFH dla ręczników papierowych w rolkach — formaty centrepull, maxi i jumbo. Uwzględnia długość odcinka, typ dozownika, współczynnik odpadów i profil obiektu.',
+tw_stat1:'dł. odcinka / suszenie — standard',tw_stat2:'odcinki / wizyta — biuro',tw_stat3:'długość rolki centrepull',tw_stat4:'zużycie — dozownik kontrolowany',
+tw_ref_title:'Tabela formatów rolek',tw_ref_hdr:'Typy rolek ręczników AFH — długości i dozowanie',
+tw_th1:'Format / typ dozownika',tw_th2:'Długość rolki',tw_th3:'Odcinek / suszenie',tw_th4:'Kontrola zużycia',tw_th5:'Zastosowanie',
+tw_r1c1:'Centrepull (odwijanie centralne)',tw_r1c5:'Biura, gastronomia, toalety publiczne',
+tw_r2c1:'Rolka maxi (dozownik naścienny)',tw_r2c5:'Obiekty o dużym natężeniu ruchu, przemysł',
+tw_r3c1:'Mini maxi / kompaktowa',tw_r3c5:'Małe biura, kliniki, recepcje',
+tw_r4c1:'Rolka jumbo',tw_r4c5:'Przemysł, obiekty o bardzo dużym ruchu',
+tw_r5c1:'Rolka kuchenna / socjalna',tw_r5c5:'Kuchnie biurowe, pokoje socjalne',
+tw_r6c1:'Ręczniki składane (Z/C-fold)',tw_r6c5:'Służba zdrowia, prestiżowe łazienki',
+ctrl_high:'wysoka',ctrl_med:'średnia',ctrl_low:'niska',ctrl_one:'po jednym',
+tw_calc_title:'Kalkulator zapasów — ręcznik papierowy',
+tw_panel1:'Parametry rolki i dozownika',tw_type_lbl:'Format rolki (preset)',
+tw_opt_cp:'Centrepull — 150 m / rolka',tw_opt_maxi:'Rolka maxi — 200 m / rolka',
+tw_opt_mini:'Mini maxi — 80 m / rolka',tw_opt_jumbo:'Rolka jumbo — 300 m / rolka',tw_opt_kitchen:'Rolka kuchenna — 25 m / rolka',
+tw_rolls_lbl:'Rolki w magazynie',tw_len_lbl:'Długość rolki (m)',
+tw_nd_lbl:'Dozowniki (szt.)',tw_seg_lbl:'Dł. odcinka / suszenie (cm)',tw_spu_lbl:'Odcinki / wizyta',
+tw_dpd_lbl:'Suszenia rąk / osoba / dzień',tw_waste_lbl:'Współczynnik odpadów (%)',tw_save_lbl:'Oszczędność dozownika (%)',
+days_stock:'Dni zapasu',working_days:'dni robocze',rolls_day:'Rolki / dzień',rolls_unit:'rolki',
+sheets_day:'Listki / dzień',sheets_unit:'listki',
+paper_day:'Papier / dzień',paper_day_m:'Papier / dzień',linear_m:'metry bieżące',metres_unit:'metry',
+soap_day:'Mydło / dzień',ml_total:'ml łącznie',
+cartridges_month:'Wkłady / miesiąc',units_22:'szt. (22 dni robocze)',
+washes_cartridge:'Mycia / wkład',uses_per_cart:'mycia na wkład',
+rolls_month:'Rolki / miesiąc',dries_roll:'Suszenia / rolka',uses_per_roll:'suszenia na rolkę',
+stock_adequacy:'Wystarczalność zapasów (skala 30-dniowa)',realtime:'Wyniki aktualizują się na bieżąco',
+calc_details:'Szczegóły obliczeń',cta_go:'Przejdź do kalkulatora',
+method_title:'Skąd pochodzą te liczby?',
+tp_method_ey:'Metodologia — papier toaletowy',
+tp_m1t:'Zużycie na wizytę',tp_m1d:'Cottonelle/Burke Incorporated — 2020 Toileting Diary Fact Book: kobiety zużywają 6,4–8,1 listka, mężczyźni 4,5–8,1 listka na wizytę. Dla środowisk AFH stosowane są wartości środkowe: K = 7,5; M = 4,5.',
+tp_m2t:'Standard listka EU/UK',tp_m2d:'W Niemczech, Francji, Holandii, Wielkiej Brytanii i Polsce standardowy listek komercyjny ma wymiary ok. 100×140 mm — podobnie jak pocztówka. Źródła: Softer Paper Co. i Baoda Paper Enterprise.',
+tp_m3t:'Częstotliwość wizyt',tp_m3d:'Przeciętna osoba korzysta z toalety 3–5 razy dziennie (Cottonelle). W biurach jako wartość bazowa przyjmuje się 3 wizyty — część potrzeb jest realizowana poza miejscem pracy.',
+so_method_ey:'Metodologia — mydło w płynie',
+so_m1t:'Badania kliniczne dawkowania',so_m1d:'Badanie opublikowane w American Journal of Infection Control (PubMed 1988): zużycie mydła wynosi 0,4–9 ml na mycie, silnie zależnie od środowiska. Personel kliniczny zużywa znacznie więcej niż pracownicy biurowi (p < 0,05).',
+so_m2t:'Pianka vs mydło w płynie',so_m2d:'Według danych branżowych (CleanLink, AAA Workspace), pianka wymaga 40–50% mniej mydła niż odpowiednik w płynie przy zachowaniu tej samej skuteczności higienicznej. Dozowniki bezdotykowe redukują zużycie o kolejne 10–20%.',
+so_m3t:'Przestrzeganie i częstotliwość',so_m3d:'CDC zaleca mycie rąk po każdej wizycie w toalecie. Wartość bazowa dla biura: 3–5 razy / osoba / dzień. Gastronomia: 8–15×, służba zdrowia: 20–100×. Przestrzeganie na poziomie 75% to typowe kryterium biurowe.',
+tw_method_ey:'Metodologia — ręcznik papierowy',
+tw_m1t:'Zużycie na wizytę',tw_m1d:'Badania brytyjskie (Power Hygiene 2025): małe biura zużywają 2–4 odcinki na wizytę, średnie 1–3. Pracownicy biurowi zużywają ok. 3 000 ręczników rocznie. Jeden odcinek ≈ 20–25 cm.',
+tw_m2t:'Wpływ dozownika na zużycie',tw_m2d:'Dozowniki z kontrolowanym podawaniem (centrepull, maxi z blokadą) redukują zużycie o 20–30% w stosunku do dozowników z wolną rolką. Inteligentne dozowniki dają dodatkową oszczędność 5–10%. Współczynnik odpadów w biurze: 10–20%.',
+tw_m3t:'Model metrów bieżących',tw_m3d:'Dozowniki ręcznikowe nie mają stałego odcinka — użytkownik odrywa dowolną długość. Kalkulator operuje metrami bieżącymi. Standardowe rolki komercyjne: 20–300 m (Zogics, MIT LCA). Rolki przemysłowe: 150–600 m.',
+v_ok:'Zapas pokrywa ponad 2 tygodnie — poziom wystarczający. Zamówienie nie jest jeszcze wymagane.',
+v_warn:'Pozostał ok. tygodnia zapasu — zalecane zamówienie w ciągu najbliższych dni roboczych.',
+v_danger:'Zapas krytycznie niski (< 7 dni) — wymagane natychmiastowe zamówienie!',
+v_days:'dni',
+dt_tp:['Łączna liczba listków w magazynie','Łączna długość papieru w magazynie','Powierzchnia listka','Śr. listków / wizyta (ważona)','Łączna liczba wizyt dziennie','Zużycie papieru na wizytę','Rolki / tydzień roboczy (5 dni)','Rolki / miesiąc roboczy (22 dni)','Metry bieżące zużyte / dzień'],
+dt_so:['Mydło na mycie (z multi-pump)','Rzeczywiste mycia / osoba / dzień','Mydło na użytkownika / dzień','Łączne zużycie mydła / dzień','Łączna objętość zapasu','Łączna liczba wkładów w magazynie','Mycia na wkład','Wkłady / tydzień roboczy (5 dni)','Wkłady / miesiąc roboczy (22 dni)','Zużycie mydła w roku (220 dni rob.)'],
+dt_tw:['Netto odcinek / suszenie (po oszcz. dozownika)','Brutto papier / suszenie (z odpadami)','Papier na użytkownika / dzień','Łączne zużycie papieru / dzień','Łączny zapas','Suszeń na rolkę','Dni do wymiany rolki (1 dozownik)','Rolki / tydzień roboczy (5 dni)','Rolki / miesiąc roboczy (22 dni)','Zużycie papieru w roku (220 dni rob.)'],
+cmp_eyebrow:'Moduł 4 / 4',
+cmp_h1:'Porównanie<br>produktów<br><em>— AI.</em>',
+cmp_desc:'Wpisz adres URL i wklej treść strony dla maksymalnie trzech dostawców. AI analizuje wszystkie źródła i przygotowuje porównanie ilościowe, jakościowe i cenowe z najlepszymi wartościami zaznaczonymi na zielono.',
+cmp_stat1:'źródła do porównania',cmp_stat2:'analiza oparta na AI',cmp_stat3:'kategorie produktów',cmp_stat4:'najlepsze wartości zaznaczone',
+cmp_input_title:'Źródła produktów — URL + wklejona treść',
+cmp_input_sub:'Otwórz stronę dostawcy → Ctrl+A, Ctrl+C → wklej poniżej. Dodaj URL jako odniesienie.',
+cmp_slot1:'Źródło 1',cmp_slot2:'Źródło 2',cmp_slot3:'Źródło 3',
+cmp_clear:'✕ wyczyść',
+cmp_url_ph:'https://dostawca.pl/strona-produktu',
+cmp_name_ph:'Nazwa produktu / dostawcy (opcjonalnie)…',
+cmp_paste_label:'wklej treść',
+cmp_paste_ph:'Otwórz stronę dostawcy, zaznacz wszystko (Ctrl+A), skopiuj (Ctrl+C) i wklej tutaj.\n\nMożesz też przeciągnąć i upuścić plik .txt / .csv na to pole.',
+cmp_drop_hint:'przeciągnij i upuść plik .txt lub .csv',
+cmp_run:'Uruchom porównanie AI',
+cmp_summary_title:'Podsumowanie — trzy rozwiązania',
+cmp_table_title:'Analiza porównawcza',
+cmp_table_sub:'Zielony = najlepsza wartość w kategorii',
+cmp_table_hdr:'Kryterium · Opis lub wartość · Najlepsza zaznaczona',
+cmp_err_min:'Wypełnij co najmniej dwa okienka (URL lub wklejoną treść) przed uruchomieniem porównania.',
+cmp_err_api:'Błąd API — upewnij się, że plik jest serwowany przez http://localhost:8080 (nie file://).',
+cmp_thinking:'Analizuję źródła…',
+cmp_done:'Analiza zakończona.'
+},
+de:{
+badge:'Sanitärbedarf-Kalkulator — v1.1',
+tab_tp:'Toilettenpapier',tab_so:'Seife',tab_tw:'Rollenhandtuch',tab_cmp:'KI-Vergleich',
+tp_eyebrow:'Modul 1 / 3',
+tp_h1:'Toiletten-<br>papier<br><em>— Bestand.</em>',
+tp_desc:'Kalkulator basierend auf der Cottonelle/Burke-Studie (2020 Toileting Diary Fact Book). Berücksichtigt Geschlechterprofil, JRT/Maxi-Rollenformat und tägliche Besuchshäufigkeit.',
+tp_stat1:'Blätter / Besuch — Frauen',tp_stat2:'Blätter / Besuch — Männer',tp_stat3:'mm — EU-Standard Blatt',tp_stat4:'ø Besuche / Person / Tag',
+tp_calc_title:'Bestandskalkulator — Toilettenpapier',
+tp_panel1:'Rollenparameter',panel_users:'Nutzer & Gewohnheiten',
+tp_type_lbl:'Rollenformat (Preset)',opt_custom:'Benutzerdefiniert',
+tp_opt_std:'Standard (250 Blatt, 100×140 mm)',tp_opt_jrt:'Jumbo JRT (400 Blatt, 100×140 mm)',tp_opt_maxi:'Maxi Jumbo (700 Blatt, 100×140 mm)',
+tp_rolls_lbl:'Rollen im Lager',tp_spr_lbl:'Blatt pro Rolle',tp_slen_lbl:'Blattlänge (mm)',tp_swid_lbl:'Blattbreite (mm)',
+users_day_lbl:'Nutzer pro Tag',tp_vpd_lbl:'Besuche / Person / Tag',
+user_profile_lbl:'Nutzerprofil',
+prof_mixed:'Gemischt',prof_office60:'Büro 60%F',prof_male:'Nur Männer',prof_female:'Nur Frauen',
+tp_sw_lbl:'Blatt / Besuch — F',tp_sm_lbl:'Blatt / Besuch — M',tp_pw_lbl:'Frauenanteil (%)',
+so_eyebrow:'Modul 2 / 3',
+so_h1:'Seife<br>Spender<br><em>— Bestand.</em>',
+so_desc:'Seifendosierungskalkulator basierend auf klinischer Forschung (PubMed 1988) und AFH-Branchendaten. Berücksichtigt Spendertyp (Schaum / Flüssig), Kartuschengröße und Objektprofil.',
+so_stat1:'ml / Dosis — Schaumseife',so_stat2:'ml / Dosis — Flüssigseife',so_stat3:'Händewaschen / Person / Tag',so_stat4:'weniger Seife — Schaum vs. Flüssig',
+so_ref_title:'Referenztabelle Dosierung',so_ref_hdr:'Seifendosen nach Spendertyp und Umgebung',
+so_th1:'Spender / Seifentyp',so_th2:'Dosis ml / Waschgang',so_th3:'Wirksamkeit',so_th4:'Anwendung',
+so_r1c1:'Schaumseife — manuell',so_r1c4:'Büros, öffentliche Einrichtungen',
+so_r2c1:'Schaumseife — berührungslos (Sensor)',so_r2c4:'Gesundheitswesen, Gastronomie',
+so_r3c1:'Flüssigseife — manuell',so_r3c4:'Allgemeiner Gebrauch',
+so_r4c1:'Flüssigseife — berührungslos',so_r4c4:'Büros, Hotels',
+so_r5c1:'Flüssigseife — Wandtank',so_r5c4:'Industrie, Lager',
+so_r6c1:'Antibakteriell / medizinisch 4% CHG',so_r6c4:'Gesundheitswesen, Lebensmittelproduktion',
+badge_high:'hoch',badge_low_ctrl:'geringe Kontrolle',badge_clinical:'klinisch',
+so_calc_title:'Bestandskalkulator — Seife',
+so_panel1:'Spender- & Produktparameter',
+so_type_lbl:'Spender / Seifentyp (Preset)',
+so_opt_foamt:'Schaum — manuell (0,6 ml / Dosis)',so_opt_foama:'Schaum — berührungslos (0,5 ml / Dosis)',
+so_opt_liqt:'Flüssig — manuell (1,2 ml / Dosis)',so_opt_liqa:'Flüssig — berührungslos (0,85 ml / Dosis)',
+so_opt_bulk:'Flüssig — Bulk (2,0 ml / Dosis)',so_opt_med:'Antibakteriell / medizinisch (3,5 ml / Dosis)',
+so_dose_lbl:'Dosis ml / Waschgang',so_vol_lbl:'Kartuschenkapazität (ml)',
+so_nd_lbl:'Spender (Stück)',so_nr_lbl:'Ersatzkartuschen / Spender',
+facility_profile_lbl:'Objektprofil',
+fac_office:'Büro',fac_food:'Gastronomie',fac_health:'Gesundheitswesen',fac_industry:'Industrie',
+so_wpd_lbl:'Händewaschen / Person / Tag',so_comp_lbl:'Handhygiene-Compliance (%)',so_dpm_lbl:'Dosen / Waschgang (Multi-Pump)',
+tw_eyebrow:'Modul 3 / 3',
+tw_h1:'Rollen-<br>handtuch<br><em>— Bestand.</em>',
+tw_desc:'Kalkulator basierend auf AFH-Daten für Rollenhandtücher — Centrepull-, Maxi- und Jumbo-Formate. Berücksichtigt Abschnittlänge, Spendertyp, Abfallfaktor und Objektprofil.',
+tw_stat1:'Abschnittlänge / Trocknen — Standard',tw_stat2:'Abschnitte / Besuch — Büro',tw_stat3:'Centrepull-Rollenlänge',tw_stat4:'Verbrauch — kontrollierter Spender',
+tw_ref_title:'Referenztabelle Rollenformate',tw_ref_hdr:'AFH Rollenhandtuch-Typen — Längen und Dosierung',
+tw_th1:'Format / Spendertyp',tw_th2:'Rollenlänge',tw_th3:'Abschnitt / Trocknen',tw_th4:'Verbrauchskontrolle',tw_th5:'Anwendung',
+tw_r1c1:'Centrepull (Innenabrollung)',tw_r1c5:'Büros, Gastronomie, öffentliche WCs',
+tw_r2c1:'Maxi-Rolle (Wandspender)',tw_r2c5:'Hochfrequenzeinrichtungen, Industrie',
+tw_r3c1:'Mini Maxi / Kompakt',tw_r3c5:'Kleine Büros, Kliniken, Empfangsbereiche',
+tw_r4c1:'Jumbo-Rolle',tw_r4c5:'Industrie, sehr frequentierte Einrichtungen',
+tw_r5c1:'Küchenrolle / Sozialbereich',tw_r5c5:'Büroküchen, Aufenthaltsräume',
+tw_r6c1:'Falthandtuch (Z/C-Falz)',tw_r6c5:'Gesundheitswesen, Prestige-Waschräume',
+ctrl_high:'hoch',ctrl_med:'mittel',ctrl_low:'niedrig',ctrl_one:'einzeln',
+tw_calc_title:'Bestandskalkulator — Rollenhandtuch',
+tw_panel1:'Rollen- & Spenderparameter',tw_type_lbl:'Rollenformat (Preset)',
+tw_opt_cp:'Centrepull — 150 m / Rolle',tw_opt_maxi:'Maxi-Rolle — 200 m / Rolle',
+tw_opt_mini:'Mini Maxi — 80 m / Rolle',tw_opt_jumbo:'Jumbo-Rolle — 300 m / Rolle',tw_opt_kitchen:'Küchenrolle — 25 m / Rolle',
+tw_rolls_lbl:'Rollen im Lager',tw_len_lbl:'Rollenlänge (m)',
+tw_nd_lbl:'Spender (Stück)',tw_seg_lbl:'Abschnittlänge / Trocknen (cm)',tw_spu_lbl:'Abschnitte / Besuch',
+tw_dpd_lbl:'Hände trocknen / Person / Tag',tw_waste_lbl:'Abfallfaktor (%)',tw_save_lbl:'Spendereinsparung (%)',
+days_stock:'Bestandstage',working_days:'Arbeitstage',rolls_day:'Rollen / Tag',rolls_unit:'Rollen',
+sheets_day:'Blatt / Tag',sheets_unit:'Blatt',
+paper_day:'Papier / Tag',paper_day_m:'Papier / Tag',linear_m:'Laufmeter',metres_unit:'Meter',
+soap_day:'Seife / Tag',ml_total:'ml gesamt',
+cartridges_month:'Kartuschen / Monat',units_22:'Stück (22 Arbeitstage)',
+washes_cartridge:'Waschgänge / Kartusche',uses_per_cart:'Nutzungen je Kartusche',
+rolls_month:'Rollen / Monat',dries_roll:'Trocknungen / Rolle',uses_per_roll:'Nutzungen je Rolle',
+stock_adequacy:'Bestandsreichweite (30-Tage-Skala)',realtime:'Ergebnisse werden in Echtzeit aktualisiert',
+calc_details:'Berechnungsdetails',cta_go:'Zum Kalkulator',
+method_title:'Woher stammen diese Zahlen?',
+tp_method_ey:'Methodik — Toilettenpapier',
+tp_m1t:'Verbrauch pro Besuch',tp_m1d:'Cottonelle/Burke Incorporated — 2020 Toileting Diary Fact Book: Frauen verwenden 6,4–8,1 Blatt, Männer 4,5–8,1 Blatt pro Besuch. Für AFH-Umgebungen werden Mittelwerte angewendet: F = 7,5; M = 4,5.',
+tp_m2t:'EU/UK-Blattstandard',tp_m2d:'In Deutschland, Frankreich, den Niederlanden, dem Vereinigten Königreich und Polen misst das kommerzielle Standardblatt ca. 100×140 mm — ähnlich einer Postkarte. Quellen: Softer Paper Co. und Baoda Paper Enterprise.',
+tp_m3t:'Besuchshäufigkeit',tp_m3d:'Eine durchschnittliche Person besucht die Toilette 3–5 Mal täglich (Cottonelle). In Büroumgebungen werden 3 Besuche als Basiswert verwendet — ein Teil der Bedürfnisse wird außerhalb des Arbeitsplatzes erfüllt.',
+so_method_ey:'Methodik — Seife',
+so_m1t:'Klinische Dosierungsforschung',so_m1d:'Studie im American Journal of Infection Control (PubMed 1988): Seifenverbrauch 0,4–9 ml pro Waschgang, stark umgebungsabhängig. Klinisches Personal verbraucht signifikant mehr als Büroangestellte (p < 0,05).',
+so_m2t:'Schaum vs. Flüssigseife',so_m2d:'Laut Branchendaten (CleanLink, AAA Workspace) benötigt Schaum 40–50% weniger Seife als das flüssige Äquivalent bei gleicher Hygienewirkung. Berührungslose Spender reduzieren den Verbrauch um weitere 10–20%.',
+so_m3t:'Compliance & Häufigkeit',so_m3d:'CDC empfiehlt Händewaschen nach jedem Toilettenbesuch. Bürobasis: 3–5 Mal / Person / Tag. Gastronomie: 8–15×, Gesundheitswesen: 20–100×. 75% Compliance ist ein typischer Büro-Richtwert.',
+tw_method_ey:'Methodik — Rollenhandtuch',
+tw_m1t:'Verbrauch pro Besuch',tw_m1d:'Britische Studie (Power Hygiene 2025): Kleine Büros verbrauchen 2–4 Abschnitte pro Besuch, mittlere Büros 1–3. Büroangestellte verbrauchen ca. 3.000 Handtücher pro Jahr. Ein Abschnitt ≈ 20–25 cm.',
+tw_m2t:'Spendereinfluss auf Verbrauch',tw_m2d:'Kontrollierte Spender (Centrepull, Maxi mit Sperre) reduzieren den Verbrauch um 20–30% gegenüber Freirollen-Spendern. Intelligente Spender ermöglichen weitere 5–10% Einsparung. Abfallfaktor im Büro: 10–20%.',
+tw_m3t:'Metrisches Längenmodell',tw_m3d:'Rollenhandtuchspender haben keinen festen Abschnitt — der Nutzer zieht eine beliebige Länge. Der Kalkulator arbeitet mit Laufmetern. Kommerzielle Standardrollen: 20–300 m (Zogics, MIT LCA). Industrierollen: 150–600 m.',
+v_ok:'Bestand reicht mehr als 2 Wochen — ausreichendes Niveau. Noch keine Nachbestellung erforderlich.',
+v_warn:'Ca. eine Woche Bestand verbleibend — Nachbestellung innerhalb der nächsten Arbeitstage empfohlen.',
+v_danger:'Bestand kritisch niedrig (< 7 Tage) — sofortige Nachbestellung erforderlich!',
+v_days:'Tage',
+dt_tp:['Blatt gesamt im Lager','Gesamte Papierlänge im Lager','Blattfläche','Ø Blatt / Besuch (gewichtet)','Besuche gesamt pro Tag','Papierverbrauch pro Besuch','Rollen / Arbeitswoche (5 Tage)','Rollen / Arbeitsmonat (22 Tage)','Laufmeter verbraucht / Tag'],
+dt_so:['Seife pro Waschgang (inkl. Multi-Pump)','Tatsächliche Waschgänge / Person / Tag','Seife pro Nutzer / Tag','Gesamtseifenverbrauch / Tag','Gesamtbestandsvolumen','Kartuschen gesamt im Lager','Waschgänge pro Kartusche','Kartuschen / Arbeitswoche (5 Tage)','Kartuschen / Arbeitsmonat (22 Tage)','Seifenverbrauch pro Jahr (220 Arbeitstage)'],
+dt_tw:['Netto-Abschnitt / Trocknen (nach Spendereinsparung)','Brutto-Papier / Trocknen (inkl. Abfall)','Papier pro Nutzer / Tag','Gesamtpapierverbrauch / Tag','Gesamtbestand','Trocknungen pro Rolle','Tage bis Rollenwechsel (1 Spender)','Rollen / Arbeitswoche (5 Tage)','Rollen / Arbeitsmonat (22 Tage)','Papierverbrauch pro Jahr (220 Arbeitstage)'],
+cmp_eyebrow:'Modul 4 / 4',
+cmp_h1:'KI-<br>Produkt-<br><em>vergleich.</em>',
+cmp_desc:'Geben Sie die Quell-URL ein und fügen Sie den Seiteninhalt für bis zu drei Lieferanten ein. Die KI analysiert alle Quellen und erstellt einen quantitativen, qualitativen und preislichen Vergleich mit grün hervorgehobenen Bestwerten.',
+cmp_stat1:'Quellen zum Vergleich',cmp_stat2:'KI-gestützte Analyse',cmp_stat3:'Produktkategorien',cmp_stat4:'Bestwerte hervorgehoben',
+cmp_input_title:'Produktquellen — URL + Inhalt einfügen',
+cmp_input_sub:'Lieferantenseite öffnen → Strg+A, Strg+C → unten einfügen. URL als Referenz angeben.',
+cmp_slot1:'Quelle 1',cmp_slot2:'Quelle 2',cmp_slot3:'Quelle 3',
+cmp_clear:'✕ löschen',
+cmp_url_ph:'https://lieferant.de/produktseite',
+cmp_name_ph:'Produkt- / Lieferantenname (optional)…',
+cmp_paste_label:'Inhalt einfügen',
+cmp_paste_ph:'Lieferantenseite öffnen, alles auswählen (Strg+A), kopieren (Strg+C) und hier einfügen.\n\nOder eine .txt- / .csv-Datei per Drag & Drop auf dieses Feld ziehen.',
+cmp_drop_hint:'.txt- oder .csv-Datei hierher ziehen',
+cmp_run:'KI-Vergleich starten',
+cmp_summary_title:'Zusammenfassung — drei Lösungen',
+cmp_table_title:'Vergleichsanalyse',
+cmp_table_sub:'Grün = bester Wert in der Kategorie',
+cmp_table_hdr:'Kriterium · Beschreibung oder Wert · Bester hervorgehoben',
+cmp_err_min:'Bitte füllen Sie mindestens zwei Felder (URL oder eingefügter Inhalt) aus, bevor Sie den Vergleich starten.',
+cmp_err_api:'API-Fehler — stellen Sie sicher, dass die Datei über http://localhost:8080 (nicht file://) bereitgestellt wird.',
+cmp_thinking:'Quellen werden analysiert…',
+cmp_done:'Analyse abgeschlossen.'
+}
+};
+
+let currentLang='en';
+
+const HTML_KEYS=['tp_h1','so_h1','tw_h1','cmp_h1'];
+
+function setLang(lang){
+  currentLang=lang;
+  document.documentElement.lang=lang;
+  const t=T[lang];
+  document.querySelectorAll('.lang-btn').forEach(b=>{
+    b.classList.toggle('active',b.textContent===lang.toUpperCase());
+  });
+  document.querySelectorAll('[data-i]').forEach(el=>{
+    const k=el.getAttribute('data-i');
+    if(t[k]===undefined) return;
+    if(HTML_KEYS.includes(k)) el.innerHTML=t[k];
+    else el.textContent=t[k];
+  });
+  // Update placeholders
+  document.querySelectorAll('[data-i-placeholder]').forEach(el=>{
+    const k=el.getAttribute('data-i-placeholder');
+    if(t[k]!==undefined) el.placeholder=t[k];
+  });
+  tpCalc(); soCalc(); twCalc();
+}
+
+const v=id=>parseFloat(document.getElementById(id).value)||0;
+const fmt=(n,d=0)=>n.toLocaleString(
+  currentLang==='pl'?'pl-PL':currentLang==='de'?'de-DE':'en-GB',
+  {minimumFractionDigits:d,maximumFractionDigits:d}
+);
+
+function applyResult(pre,days,col,r1,r2,r3,r4,rows){
+  const t=T[currentLang];
+  document.getElementById(pre+'-r1').textContent=fmt(r1,1);
+  document.getElementById(pre+'-r2').textContent=fmt(r2,r2<10?1:0);
+  document.getElementById(pre+'-r3').textContent=fmt(r3,r3<10?1:0);
+  document.getElementById(pre+'-r4').textContent=fmt(r4,0);
+  const pct=Math.min(100,(days/30)*100);
+  const sf=document.getElementById(pre+'-sf');
+  sf.style.width=pct.toFixed(1)+'%';
+  let color,cls,msg;
+  if(days>=14){color=col;cls='v-ok';msg=t.v_ok;}
+  else if(days>=7){color='#B45309';cls='v-warn';msg=t.v_warn;}
+  else{color='#991B1B';cls='v-danger';msg=t.v_danger;}
+  sf.style.background=color;
+  document.getElementById(pre+'-slbl').textContent=fmt(days,1)+' '+t.v_days;
+  const ve=document.getElementById(pre+'-verdict');
+  ve.style.display='flex';ve.className='verdict '+cls;ve.textContent=msg;
+  document.getElementById(pre+'-dt').innerHTML=rows.map(([k,val])=>`<tr><td>${k}</td><td>${val}</td></tr>`).join('');
+}
+
+function switchTab(tab){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  document.querySelectorAll('.module').forEach(m=>m.classList.toggle('active',m.id==='mod-'+tab));
+}
+
+const TP_PRE={std:[250,140,100],jrt:[400,140,100],maxi:[700,140,100]};
+const TP_PROF={mixed:[7.0,4.0,50],office:[7.5,4.5,60],male:[6.0,4.0,10],female:[7.5,6.5,90]};
+
+function tpPreset(){
+  const t=document.getElementById('tp-type').value,p=TP_PRE[t];
+  if(p){document.getElementById('tp-spr').value=p[0];document.getElementById('tp-slen').value=p[1];document.getElementById('tp-swid').value=p[2];}
+  tpCalc();
+}
+function tpProfile(p){
+  document.querySelectorAll('[id^="tp-btn-"]').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tp-btn-'+p).classList.add('active');
+  const[w,m,pct]=TP_PROF[p];
+  document.getElementById('tp-sw').value=w;document.getElementById('tp-sm').value=m;document.getElementById('tp-pw').value=pct;
+  tpCalc();
+}
+function tpCalc(){
+  const t=T[currentLang];
+  const rolls=v('tp-rolls'),spr=v('tp-spr'),slen=v('tp-slen'),swid=v('tp-swid');
+  const users=v('tp-users'),vpd=v('tp-vpd'),sw=v('tp-sw'),sm=v('tp-sm'),pw=Math.min(100,Math.max(0,v('tp-pw')))/100;
+  const total=rolls*spr,lenM=total*slen/1000,areaCm=(slen/10)*(swid/10);
+  const avg=sw*pw+sm*(1-pw),visDay=users*vpd,spd=visDay*avg,rpd=spd/spr;
+  const days=spd>0?total/spd:0,lm=spd*slen/1000;
+  applyResult('tp',days,'#1A3A6B',days,rpd,spd,spr/avg,[
+    [t.dt_tp[0],fmt(total,0)+' '+t.sheets_unit],
+    [t.dt_tp[1],fmt(lenM,0)+' m'],
+    [t.dt_tp[2],fmt(areaCm,0)+' cm²'],
+    [t.dt_tp[3],fmt(avg,2)+' '+t.sheets_unit],
+    [t.dt_tp[4],fmt(visDay,0)],
+    [t.dt_tp[5],fmt(avg*slen/1000,3)+' m'],
+    [t.dt_tp[6],fmt(rpd*5,1)],
+    [t.dt_tp[7],fmt(rpd*22,1)],
+    [t.dt_tp[8],fmt(lm,1)+' m'],
+  ]);
+}
+
+const SO_PRE={'foam-t':[.6,1000],'foam-a':[.5,1000],'liq-t':[1.2,1000],'liq-a':[.85,1000],'bulk':[2.0,5000],'med':[3.5,700]};
+const SO_PROF={office:[4,75,1],food:[12,90,1],health:[25,85,1],industry:[6,70,1]};
+
+function soPreset(){
+  const t=document.getElementById('so-type').value,p=SO_PRE[t];
+  if(p){document.getElementById('so-dose').value=p[0];document.getElementById('so-vol').value=p[1];}
+  soCalc();
+}
+function soProfile(p){
+  document.querySelectorAll('[id^="so-btn-"]').forEach(b=>b.classList.remove('active'));
+  document.getElementById('so-btn-'+p).classList.add('active');
+  const[w,c,d]=SO_PROF[p];
+  document.getElementById('so-wpd').value=w;document.getElementById('so-comp').value=c;document.getElementById('so-dpm').value=d;
+  soCalc();
+}
+function soCalc(){
+  const t=T[currentLang];
+  const dose=v('so-dose'),vol=v('so-vol'),nd=v('so-nd'),nr=v('so-nr');
+  const users=v('so-users'),wpd=v('so-wpd'),comp=Math.min(100,Math.max(0,v('so-comp')))/100,dpm=v('so-dpm');
+  const mlW=dose*dpm,actual=wpd*comp,mlUPD=mlW*actual,mlPD=mlUPD*users;
+  const stock=(nr+1)*nd*vol,days=mlPD>0?stock/mlPD:0;
+  const wPerRef=vol/mlW,rPerDay=mlPD/vol,rPerMonth=rPerDay*22;
+  applyResult('so',days,'#0F6E56',days,mlPD,rPerMonth,wPerRef,[
+    [t.dt_so[0],fmt(mlW,2)+' ml'],
+    [t.dt_so[1],fmt(actual,1)+'×'],
+    [t.dt_so[2],fmt(mlUPD,1)+' ml'],
+    [t.dt_so[3],fmt(mlPD,0)+' ml'],
+    [t.dt_so[4],fmt(stock,0)+' ml'],
+    [t.dt_so[5],fmt((nr+1)*nd,0)],
+    [t.dt_so[6],fmt(wPerRef,0)],
+    [t.dt_so[7],fmt(rPerDay*5,2)],
+    [t.dt_so[8],fmt(rPerMonth,1)],
+    [t.dt_so[9],fmt(mlPD*220/1000,0)+' l'],
+  ]);
+}
+
+const TW_PRE={cp:[150,22],maxi:[200,22],mini:[80,20],jumbo:[300,25],kitchen:[25,25]};
+const TW_PROF={office:[3,15,20,1.5],food:[10,20,15,2.0],health:[18,10,25,2.0],industry:[5,25,10,2.5]};
+
+function twPreset(){
+  const t=document.getElementById('tw-type').value,p=TW_PRE[t];
+  if(p){document.getElementById('tw-len').value=p[0];document.getElementById('tw-seg').value=p[1];}
+  twCalc();
+}
+function twProfile(p){
+  document.querySelectorAll('[id^="tw-btn-"]').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tw-btn-'+p).classList.add('active');
+  const[d,w,s,seg]=TW_PROF[p];
+  document.getElementById('tw-dpd').value=d;document.getElementById('tw-waste').value=w;
+  document.getElementById('tw-save').value=s;document.getElementById('tw-spu').value=seg;
+  twCalc();
+}
+function twCalc(){
+  const t=T[currentLang];
+  const rolls=v('tw-rolls'),len=v('tw-len'),nd=v('tw-nd'),seg=v('tw-seg')/100;
+  const spu=v('tw-spu'),users=v('tw-users'),dpd=v('tw-dpd');
+  const waste=Math.min(60,Math.max(0,v('tw-waste')))/100,save=Math.min(50,Math.max(0,v('tw-save')))/100;
+  const mNet=seg*spu*(1-save),mGross=mNet*(1+waste);
+  const mUPD=mGross*dpd,mPD=mUPD*users,stock=rolls*len;
+  const days=mPD>0?stock/mPD:0,dpr=len/mGross,rPM=mPD/len*22,dpDispDay=mPD/nd,daysPR=len/dpDispDay;
+  applyResult('tw',days,'#7C3D0F',days,mPD,rPM,dpr,[
+    [t.dt_tw[0],fmt(mNet*100,1)+' cm'],
+    [t.dt_tw[1],fmt(mGross*100,1)+' cm'],
+    [t.dt_tw[2],fmt(mUPD,2)+' m'],
+    [t.dt_tw[3],fmt(mPD,1)+' m'],
+    [t.dt_tw[4],fmt(stock,0)+' m'],
+    [t.dt_tw[5],fmt(dpr,0)],
+    [t.dt_tw[6],fmt(daysPR,1)],
+    [t.dt_tw[7],fmt(mPD/len*5,2)],
+    [t.dt_tw[8],fmt(rPM,1)],
+    [t.dt_tw[9],fmt(mPD*220/1000,1)+' km'],
+  ]);
+}
+
+// Init with English
+setLang('en');
+
+document.querySelectorAll('input[type=number]').forEach(inp=>{
+  inp.addEventListener('change',()=>{
+    const id=inp.id;
+    if(id.startsWith('tp-'))document.getElementById('tp-type').value='custom';
+    if(id.startsWith('so-'))document.getElementById('so-type').value='custom';
+    if(id.startsWith('tw-'))document.getElementById('tw-type').value='custom';
+  });
+});
+
+/* ════════════════════════════════════════
+   MODULE 4 — AI COMPARISON (version B)
+════════════════════════════════════════ */
+
+function slotDragOver(e,i){
+  e.preventDefault();
+  document.getElementById('slot-'+i).classList.add('drag-over');
+}
+function slotDragLeave(i){
+  document.getElementById('slot-'+i).classList.remove('drag-over');
+}
+function slotDrop(e,i){
+  e.preventDefault();
+  document.getElementById('slot-'+i).classList.remove('drag-over');
+  const files=e.dataTransfer.files;
+  if(files&&files.length>0){
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      document.getElementById('text-'+i).value=ev.target.result;
+      if(!document.getElementById('name-'+i).value)
+        document.getElementById('name-'+i).value=files[0].name.replace(/\.[^.]+$/,'');
+    };
+    reader.readAsText(files[0]);
+  } else {
+    const txt=e.dataTransfer.getData('text/plain');
+    if(txt) document.getElementById('text-'+i).value=txt;
+  }
+}
+function clearSlot(i){
+  document.getElementById('text-'+i).value='';
+  document.getElementById('name-'+i).value='';
+  document.getElementById('url-'+i).value='';
+  document.getElementById('cmp-result').classList.remove('visible');
+}
+
+async function runComparison(){
+  const t=T[currentLang];
+  const slots=[0,1,2].map(i=>({
+    url:   (document.getElementById('url-'+i).value||'').trim(),
+    name:  (document.getElementById('name-'+i).value||'').trim(),
+    text:  (document.getElementById('text-'+i).value||'').trim()
+  })).filter(s=>s.text.length>0||s.url.length>0);
+
+  if(slots.length<2){
+    const st=document.getElementById('cmp-status');
+    st.textContent=t.cmp_err_min;
+    st.className='cmp-status cmp-err';
+    return;
+  }
+
+  const btn=document.getElementById('cmp-run-btn');
+  const status=document.getElementById('cmp-status');
+  btn.disabled=true;
+  btn.innerHTML=`<span class="cmp-spinner"></span>${t.cmp_thinking}`;
+  status.textContent='';
+  status.className='cmp-status';
+  document.getElementById('cmp-result').classList.remove('visible');
+
+  // Build prompt — include URL as context label even if no text fetched
+  const sourcesBlock=slots.map((s,i)=>{
+    const label=s.name||s.url||`Source ${i+1}`;
+    const urlLine=s.url?`URL: ${s.url}\n`:'';
+    const body=s.text?s.text.slice(0,4000):'(no page content provided — infer from URL if possible)';
+    return `=== SOURCE ${i+1}: ${label} ===\n${urlLine}${body}`;
+  }).join('\n\n');
+
+  const langInstruction=currentLang==='pl'
+    ?'Odpowiadaj WYŁĄCZNIE po polsku.'
+    :currentLang==='de'
+    ?'Antworte AUSSCHLIESSLICH auf Deutsch.'
+    :'Respond ONLY in English.';
+
+  const prompt=`You are an expert hygiene and facility supply consultant. ${langInstruction}
+
+The user has provided content from ${slots.length} product sources related to hygiene dispensers and sanitary materials.
+
+${sourcesBlock}
+
+Return ONLY valid JSON, no markdown, no explanation, no backticks.
+
+{
+  "summaries": [
+    {"name": "product/supplier name", "url": "url or empty string", "summary": "2-3 sentence executive summary"}
+  ],
+  "rows": [
+    {"criterion": "name", "values": ["val1","val2","val3 or omit if 2 sources"], "best": 0}
+  ],
+  "note": "one sentence on data quality or gaps"
+}
+
+Criteria in order: 1.Product type/category 2.Format/packaging 3.Capacity/volume per unit 4.Dosage per use 5.Uses per unit 6.Unit price 7.Cost per use 8.Cost per 100 uses 9.Hygiene standard/certification 10.Dispenser compatibility 11.Eco certification 12.Country of origin 13.Min order quantity 14.Lead time/delivery 15.Overall value rating (Excellent/Good/Average/Poor).
+
+"best" = index of best value (0-based), -1 if equal or unknown. Lower price = better. Higher rating = better. "n/a" cannot be best.
+"summaries" must have exactly ${slots.length} entries. "values" must have exactly ${slots.length} entries per row.`;
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:2000,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data=await res.json();
+    if(!res.ok||!data.content) throw new Error(data.error?.message||'API error');
+    const raw=data.content.filter(b=>b.type==='text').map(b=>b.text).join('');
+    const clean=raw.replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/\s*```$/,'').trim();
+    const parsed=JSON.parse(clean);
+    renderComparison(parsed,slots);
+    status.textContent=t.cmp_done;
+    status.className='cmp-status';
+  } catch(err){
+    console.error(err);
+    status.textContent=t.cmp_err_api;
+    status.className='cmp-status cmp-err';
+  } finally{
+    btn.disabled=false;
+    btn.innerHTML=`<svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="5"/><path d="M5 7l1.5 1.5L9 5"/></svg> ${T[currentLang].cmp_run}`;
+  }
+}
+
+function renderComparison(data,slots){
+  const t=T[currentLang];
+  // Summaries
+  document.getElementById('cmp-summaries').innerHTML=data.summaries.map((s,i)=>{
+    const slotUrl=slots[i]?slots[i].url:'';
+    const displayUrl=s.url||slotUrl;
+    return `<div class="cmp-summary-card">
+      <div class="cmp-card-num">${escHtml(t['cmp_slot'+(i+1)])}</div>
+      <div class="cmp-card-name">${escHtml(s.name)}</div>
+      ${displayUrl?`<div class="cmp-card-url"><a href="${escHtml(displayUrl)}" target="_blank" rel="noopener">${escHtml(displayUrl)}</a></div>`:''}
+      <div class="cmp-card-text">${escHtml(s.summary)}</div>
+    </div>`;
+  }).join('');
+
+  // Table
+  const names=slots.map((s,i)=>s.name||s.url||`Source ${i+1}`);
+  const thead=`<tr>
+    <th style="width:22%">${getHeaderLabel('criterion')}</th>
+    ${names.map(n=>`<th>${escHtml(n)}</th>`).join('')}
+  </tr>`;
+  const tbody=data.rows.map(row=>{
+    const cells=row.values.map((val,vi)=>{
+      const best=row.best===vi;
+      return `<td class="${best?'best':''}">${escHtml(val??'n/a')}</td>`;
+    }).join('');
+    return `<tr><td>${escHtml(row.criterion)}</td>${cells}</tr>`;
+  }).join('');
+  document.getElementById('cmp-table-inner').innerHTML=
+    `<table class="cmp-tbl"><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
+  document.getElementById('cmp-note').textContent=data.note||'';
+  document.getElementById('cmp-result').classList.add('visible');
+  document.getElementById('cmp-result').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function getHeaderLabel(key){
+  return({en:{criterion:'Criterion'},pl:{criterion:'Kryterium'},de:{criterion:'Kriterium'}}[currentLang]||{})[key]||key;
+}
+function escHtml(s){
+  if(!s)return'';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
